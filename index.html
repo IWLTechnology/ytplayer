@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Music Autoplay</title>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  </head>
+  <body class="w3-center w3-purple">
+    <h1>Music Autoplay</h1>
+    <div id="player"></div>
+    <script>
+      var tag = document.createElement('script');
+      tag.src = "https://www.youtube.com/iframe_api";
+      var firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+      var player;
+      var currentVideo = -1;
+      var videoList = ["2PcE8BlkTjc", "y1bRIMcQ_is:", "Qf-aUylWtI8", "cx4Glai1CjXWY", "05Boiab4c4U", "OMbfT3Wppjo", "1fue7OUT-Xk", "WIit0NbgRpQ", "IN2tJQ2r0L8", "IqfV0zeEvT8", "9R8x5YlbQ0Q", "dWiRhEBRZZM", "8rY6JhJmcoU", "MPXJsQMdmoY", "sAg7rn7fH3Q", "QurQEiOAQjA", "y8nVfW_7rsw", "ttTFmr6XdPc", "1_vKqgcFF4w", "XFRjr_x-yxU", "xrpaQv67wic", "I-nU1yLlza4", "OcOS9j-NXRQ", "C8sOFRdUnRw", "jjaKKAsQc34", "_3UsWiYBFCo", "j6dhmhTgc84", "RdMC056l03s", "vd4lgL4SpMQ", "tQCvky1Qo_g", "LMuFA_XBtWk", "RVXzZ760XA8", "E2U5GoX4dew", "YTn2sViERsg", "_NWrPp8QxZI", "tof8_p0F3kg", "GjnsAjsQ2cw", "Kc3aDajU9JM", "DwKSFrBEF6s", "zS7jlWG5Dlw", "JUTYnW48C9E", "pYkcqnzWo5w", "ix6e9h40qMg", "o-xRxXYpavU"];
+    var endSong = "NNiTxUEnmKI";
+      function onYouTubeIframeAPIReady() {
+        makeVideo();
+      }
+      function makeVideo(){
+        try{
+          player.destroy();
+        }
+        catch{
+          
+        }
+        currentVideo++;
+        if(currentVideo == videoList.length){
+          player = new YT.Player('player', {
+            height: '390',
+            width: '640',
+            videoId: endSong,
+            playerVars: {
+              'playsinline': 1
+            },
+            events: {
+              'onReady': onPlayerReady,
+              'onStateChange': onPlayerStateChange,
+              'onError': onError
+            }
+          });
+        }else if(currentVideo > videoList.length){
+          currentVideo = -1;
+          makeVideo();
+        }else{
+          player = new YT.Player('player', {
+            height: '390',
+            width: '640',
+            videoId: videoList[currentVideo],
+            playerVars: {
+              'playsinline': 1
+            },
+            events: {
+              'onReady': onPlayerReady,
+              'onStateChange': onPlayerStateChange,
+              'onError': onError
+            }
+          });
+        }
+      }
+      function onPlayerReady(event) {
+        event.target.playVideo();
+      }
+      function onError(){
+        makeVideo();
+      }
+      function onPlayerStateChange(event) {
+        if(event.data == YT.PlayerState.ENDED) {
+            makeVideo();
+        }else if(event.data == YT.PlayerState.PAUSED){
+            player.playVideo();
+        }
+      }
+      function stopVideo() {
+        player.stopVideo();
+      }
+    </script>
+  </body>
+</html>
