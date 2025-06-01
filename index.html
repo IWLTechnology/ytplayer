@@ -1,12 +1,49 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Music Autoplay</title>
+    <title>YouTube Player</title>
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
   </head>
   <body class="w3-center w3-purple">
-    <h1>Music Autoplay</h1>
+    <div id="main" style="display:none;">
+    <h1>YouTube Player</h1>
+    <hr>
+    <div id="settings">
+      <p>
+        Video IDs (separate by a comma then a space):
+      </p>
+      <textarea id="playlist" placeholder="Enter the YouTube Video IDs here." rows="6" cols="50" class="w3-round w3-padding-small" style="border-width: 0 0 0 0;"></textarea>
+      <p>
+        Last video to play: <input type="text" class="w3-round w3-padding-small" style="border-width: 0 0 0 0;" placeholder="Final video" id="endVideo">
+      </p>
+      <button onclick="preset(0)" class="w3-btn w3-light-green w3-round-xlarge w3-ripple">
+        Preset 1 (Church)
+      </button>
+      <button onclick="preset(1)" class="w3-btn w3-pink w3-round-xlarge w3-ripple">
+        Preset 2 (Original)
+      </button><br><br>
+      <button onclick="shuffleList()" class="w3-btn w3-aqua w3-round-xlarge w3-ripple">
+        Shuffle the List
+      </button>
+      <button onclick="go()" class="w3-btn w3-green w3-round-xlarge w3-ripple">
+        Go!
+      </button>
+    </div>
     <div id="player"></div>
+    <div id="controls" style="display:none;">
+      <button onclick="controls(0)" class="w3-btn w3-green w3-round-xlarge w3-ripple">
+        Pause/Play
+      </button>
+      <button onclick="controls(1)" class="w3-btn w3-aqua w3-round-xlarge w3-ripple">
+        Next
+      </button>
+      </div>
+    </div>
+    <div id="loading">
+      <h1>
+        Loading...
+      </h1>
+    </div>
     <script>
       var tag = document.createElement('script');
       tag.src = "https://www.youtube.com/iframe_api";
@@ -14,11 +51,88 @@
       firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
       var player;
       var currentVideo = -1;
-      var videoList = ["2PcE8BlkTjc", "y1bRIMcQ_is:", "Qf-aUylWtI8", "cx4Glai1CjXWY", "05Boiab4c4U", "OMbfT3Wppjo", "1fue7OUT-Xk", "WIit0NbgRpQ", "IN2tJQ2r0L8", "IqfV0zeEvT8", "9R8x5YlbQ0Q", "dWiRhEBRZZM", "8rY6JhJmcoU", "MPXJsQMdmoY", "sAg7rn7fH3Q", "QurQEiOAQjA", "y8nVfW_7rsw", "erFT6nmvMm0", "ttTFmr6XdPc", "1_vKqgcFF4w", "XFRjr_x-yxU", "xrpaQv67wic", "I-nU1yLlza4", "OcOS9j-NXRQ", "C8sOFRdUnRw", "jjaKKAsQc34", "_3UsWiYBFCo", "j6dhmhTgc84", "RdMC056l03s", "vd4lgL4SpMQ", "tQCvky1Qo_g", "LMuFA_XBtWk", "RVXzZ760XA8", "E2U5GoX4dew", "YTn2sViERsg", "_NWrPp8QxZI", "tof8_p0F3kg", "GjnsAjsQ2cw", "Kc3aDajU9JM", "DwKSFrBEF6s", "wCw-W-2Rs0k", "zS7jlWG5Dlw", "JUTYnW48C9E", "Uc_HxKMKB_E", "pYkcqnzWo5w", "ix6e9h40qMg", "o-xRxXYpavU"];
-    var endSong = "NNiTxUEnmKI";
-      function onYouTubeIframeAPIReady() {
-        makeVideo();
+      var endVideo;
+      navigator.mediaSession.setActionHandler('nexttrack', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        controls(1);
+      });
+      navigator.mediaSession.setActionHandler('play', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        controls(0);
+        
+      });
+      navigator.mediaSession.setActionHandler('pause', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        controls(0);
+      });
+      function preset(n){
+        switch(n){
+          case 0:
+            var ta = "ZLN-TYJJ_9Q, -iVU0TWlwv0, ciQvJsGyHrA, rrGiwJH19sE, 6846K3h2xmc, YIb4NC5ikYo, YNLNoID_Smk, WDCkC3vnJZs, SgR1J4YRhIA, fWpvknKuYrg, 0pkWrvCZDHA, qga1wBBajcA, 1c3uibrPcVs, jVHLp8Szlw4, xMnHsCRNkJk, i73UkuC8gyE, hE2N_qMfoU0, eETqwfsNxiU, 19gZJrXnx3M, CLC_5iqTIsY, iU9nK5rSwjY, xXG30QwhezY, fhS83a5Ky84, E-r7ogDaaEQ";
+            var fv = "TfiYWaeAcRw";
+            break;
+          case 1:
+            var ta = "2PcE8BlkTjc, y1bRIMcQ_is:, Qf-aUylWtI8, cx4Glai1CjXWY, 05Boiab4c4U, OMbfT3Wppjo, 1fue7OUT-Xk, WIit0NbgRpQ, IN2tJQ2r0L8, IqfV0zeEvT8, 9R8x5YlbQ0Q, dWiRhEBRZZM, 8rY6JhJmcoU, MPXJsQMdmoY, sAg7rn7fH3Q, QurQEiOAQjA, y8nVfW_7rsw, erFT6nmvMm0, ttTFmr6XdPc, 1_vKqgcFF4w, XFRjr_x-yxU, xrpaQv67wic, I-nU1yLlza4, OcOS9j-NXRQ, C8sOFRdUnRw, jjaKKAsQc34, _3UsWiYBFCo, j6dhmhTgc84, RdMC056l03s, vd4lgL4SpMQ, tQCvky1Qo_g, LMuFA_XBtWk, RVXzZ760XA8, E2U5GoX4dew, YTn2sViERsg, _NWrPp8QxZI, tof8_p0F3kg, GjnsAjsQ2cw, Kc3aDajU9JM, DwKSFrBEF6s, wCw-W-2Rs0k, zS7jlWG5Dlw, JUTYnW48C9E, Uc_HxKMKB_E, pYkcqnzWo5w, ix6e9h40qMg, o-xRxXYpavU";
+            var fv = "NNiTxUEnmKI";
+            break;
+        }
+        document.getElementById("playlist").value = ta;
+        document.getElementById("endVideo").value = fv;
       }
+      function onYouTubeIframeAPIReady() {
+        document.getElementById("loading").style.display="none";
+        document.getElementById("main").style.display="block";
+      }
+      function shuffleList(){
+        var ls = document.getElementById("playlist").value.split(", ");
+        ls = shuffle(ls);
+        var ret = "";
+        for(var i = 0; i < ls.length-1; i++){
+          ret += ls[i] + ", "
+        }
+        ret += ls[ls.length-1];
+        document.getElementById("playlist").value = ret;
+      }
+      function go(){
+        videoList = document.getElementById("playlist").value.split(", ");
+        endVideo = document.getElementById("endVideo").value;
+        if(videoList == "" || endVideo == ""){
+          alert("Please enter values for all the fields.");
+        }else{
+          document.getElementById("controls").style.display = "block";
+          document.getElementById("settings").style.display = "none";
+          makeVideo(); 
+        }
+      }
+      function controls(a){
+        switch(a){
+          case 0:
+            var state = player.getPlayerState();
+            if(state == 1){
+              player.pauseVideo(); 
+            }else{
+              player.playVideo();
+            }
+            break;
+          case 1:
+            makeVideo();
+            break;
+        }
+      }
+      function shuffle(array) {
+  var m = array.length, t, i;
+  while (m) {
+    i = Math.floor(Math.random() * m--);
+    t = array[m];
+    array[m] = array[i];
+    array[i] = t;
+  }
+
+  return array;
+}
       function makeVideo(){
         try{
           player.destroy();
@@ -31,7 +145,7 @@
           player = new YT.Player('player', {
             height: '390',
             width: '640',
-            videoId: endSong,
+            videoId: endVideo,
             playerVars: {
               'playsinline': 1
             },
@@ -70,7 +184,7 @@
         if(event.data == YT.PlayerState.ENDED) {
             makeVideo();
         }else if(event.data == YT.PlayerState.PAUSED){
-            player.playVideo();
+            //player.playVideo();
         }
       }
       function stopVideo() {
