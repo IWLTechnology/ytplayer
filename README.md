@@ -1,5 +1,5 @@
 # YouTube Player
-Play your YouTube playlist automatically with no interruptions. Simlpy input your YT video IDs and click go.
+Play your YouTube playlist automatically with no interruptions. Simlpy input your YouTube video IDs and click go.
 
 ## Requirements
 Your browser must be focused on the tab for autoplay to work, even if the browser is not active (e.g. it is minimised).
