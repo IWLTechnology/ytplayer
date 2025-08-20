@@ -376,6 +376,22 @@ Option to disable looping.
         }
       }
       function onError() {
+        if (scanning) {
+          titles[scanId] = "Video Error";
+          authors[scanId] = "Video Error";
+           if (scanId < videoList.length) {
+              scanId++;
+              var perc = scanId/videoList.length;
+              document.getElementById("loadPerc").innerHTML = Math.floor(perc * 100) + "%";
+              document.getElementById("loadBar").style.width = ((Number(window.getComputedStyle(document.getElementById("loadOutside"), null).getPropertyValue("width").split("px")[0]) * perc) + "px");
+            } else {
+              scanning = false;
+              currentVideo = -1;
+              updateTitles();
+              document.getElementById("scanning").style.display = "none";
+              document.getElementById("controls").style.display = "block";
+            }
+        }
         makeVideo();
       }
       function onPlayerStateChange(event) {
