@@ -1,0 +1,116 @@
+body{
+        background-color: var(--page-background)!important;
+        color: var(--text-color)!important;
+      }
+      .switch {
+        position: relative;
+        display: inline-block;
+        width: 12vh;
+        height: 6.7vh;
+      }
+      .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: var(--accent-1);
+        -webkit-transition: 0.4s;
+        transition: 0.4s;
+        border-radius: 34px;
+      }
+      .slider:before {
+        position: absolute;
+        content: "";
+        height: 5.1vh;
+        width: 5.1vh;
+        left: 0.79vh;
+        bottom: 0.79vh;
+        background-color: var(--accent-3);
+        -webkit-transition: 0.4s;
+        transition: 0.4s;
+        border-radius: 50%;
+      }
+      input:checked + .slider {
+        background-color: var(--accent-2);
+      }
+      input:focus + .slider {
+        box-shadow: 0 0 1px var(--accent-2);
+      }
+      input:checked + .slider:before {
+        -webkit-transform: translateX(26px);
+        -ms-transform: translateX(26px);
+        transform: translateX(26px);
+      }
+      iframe {
+        border-width: 1px!important;
+        border-color: rgba(0, 0, 0, 0.1)!important;
+        border-radius: 15px;
+      }
+      #controls {
+        margin-left: 20px;
+        border-color: var(--accent-2);
+        border-style: solid;
+        border-width: 1px;
+        border-radius: 15px;
+        height: 390px !important;
+        background-color: var(--accent-1);
+      }
+      .titles {
+        height: 300px;
+        overflow-y: auto;
+      }
+      ::-webkit-scrollbar {
+        width: 10px;
+      }
+      ::-webkit-scrollbar-track {
+        border-radius: 40px;
+        background: var(--highlight-color);
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--accent-2);
+        border-radius: 40px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: var(--text-color);
+      }
+      #controlsBar{
+        border-radius: 15px 15px 0 0;
+        background-color: var(--accent-2);
+      }
+      .w3-ul.w3-hoverable li:hover{
+        background-color: var(--accent-3)!important;
+      }
+      #loadOutside{
+        background-color: var(--accent-2);
+      }
+      #loadBar{
+        background-color: var(--accent-1);
+      }
+      .btn1{
+        background-color: var(--accent-2)!important;
+        color: var(--accent-3)!important;
+      }
+      .btn1v2{
+        background-color: var(--text-color)!important;
+        color: var(--accent-3)!important;
+      }
+      .btn2{
+        background-color: var(--accent-3)!important;
+        color: var(--accent-2)!important;
+      }
+      #titleDisplay li{
+        color: var(--accent-2);
+      }
+      .individualTitle{
+        width: 100%!important;
+      }
+      hr{
+        border-color: var(--highlight-color)!important;
+      }
