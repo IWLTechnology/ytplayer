@@ -29,16 +29,22 @@ var authors = [];
       });
       */
 function preset(n) {
+                var ta;
+            var fv;
     switch (n) {
         case 0:
-            var ta =
+            ta =
                 "ZLN-TYJJ_9Q, -iVU0TWlwv0, ciQvJsGyHrA, rrGiwJH19sE, 6846K3h2xmc, YIb4NC5ikYo, YNLNoID_Smk, WDCkC3vnJZs, SgR1J4YRhIA, fWpvknKuYrg, 0pkWrvCZDHA, qga1wBBajcA, 1c3uibrPcVs, jVHLp8Szlw4, xMnHsCRNkJk, i73UkuC8gyE, hE2N_qMfoU0, eETqwfsNxiU, 19gZJrXnx3M, CLC_5iqTIsY, iU9nK5rSwjY, xXG30QwhezY, fhS83a5Ky84, E-r7ogDaaEQ";
-            var fv = "TfiYWaeAcRw";
+            fv = "TfiYWaeAcRw";
             break;
         case 1:
-            var ta =
+            ta =
                 "2PcE8BlkTjc, Qf-aUylWtI8, 05Boiab4c4U, OMbfT3Wppjo, 1fue7OUT-Xk, WIit0NbgRpQ, IN2tJQ2r0L8, IqfV0zeEvT8, 9R8x5YlbQ0Q, dWiRhEBRZZM, 8rY6JhJmcoU, MPXJsQMdmoY, sAg7rn7fH3Q, QurQEiOAQjA, y8nVfW_7rsw, erFT6nmvMm0, ttTFmr6XdPc, 1_vKqgcFF4w, XFRjr_x-yxU, xrpaQv67wic, I-nU1yLlza4, OcOS9j-NXRQ, C8sOFRdUnRw, jjaKKAsQc34, _3UsWiYBFCo, j6dhmhTgc84, RdMC056l03s, vd4lgL4SpMQ, tQCvky1Qo_g, LMuFA_XBtWk, RVXzZ760XA8, E2U5GoX4dew, YTn2sViERsg, _NWrPp8QxZI, tof8_p0F3kg, GjnsAjsQ2cw, Kc3aDajU9JM, DwKSFrBEF6s, wCw-W-2Rs0k, zS7jlWG5Dlw, JUTYnW48C9E, Uc_HxKMKB_E, pYkcqnzWo5w, ix6e9h40qMg, o-xRxXYpavU";
-            var fv = "NNiTxUEnmKI";
+            fv = "NNiTxUEnmKI";
+            break;
+        case 2:
+            ta = "iaZPURV9h_s, N4j2gaKXibg, 19PY5kGS1Sg, -AUwJJHrDFw, b_bMweUkr-k, 2PCC94HC_ag, Is6Xcc7ixNY, h7a7YlcVb3M, Ko9c10m2uX0, I0PrDxe13IQ, H5vmWobxqso, c33C06oWe-4, erjN98Kco2c, Y2vlzwTbhko, uIzTkeZ5WWY, LN1cqABGM5Q";
+            fv = "oW5_ifZBIMs";
             break;
     }
     document.getElementById("playlist").value = ta;
