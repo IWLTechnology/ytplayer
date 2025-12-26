@@ -12,7 +12,7 @@ Link to activate playlist
 Songs already played are dark text col, those not are light.
 Option to disable looping.
 -->
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <title>YouTube Player</title>
@@ -33,26 +33,10 @@ Option to disable looping.
           cols="50"
           class="w3-round w3-padding-small"
           style="border-width: 0 0 0 0"></textarea>
-        <p>
-          Last video to play:
-          <input
-            type="text"
-            class="w3-round w3-padding-small"
-            style="border-width: 0 0 0 0"
-            placeholder="Final video"
-            id="endVideo" />
-        </p>
-        <label class="switch">
-          <input type="checkbox" checked id="vidTitle" />
-          <span class="slider"></span>
-        </label>
-        <p style="display: inline-block">
-          Load video titles (this may take a while depending on the length of your playlist)
-        </p>
+        <br />
         <br />
         <button onclick="preset(0)" class="w3-btn w3-round-xlarge w3-ripple btn1">Preset 1 (Church)</button>
-        <button onclick="preset(1)" class="w3-btn w3-round-xlarge w3-ripple btn1">Preset 2 (Original)</button>
-        <button onclick="preset(2)" class="w3-btn w3-round-xlarge w3-ripple btn1">Preset 3 (Christmas)</button><br>
+        <button onclick="preset(1)" class="w3-btn w3-round-xlarge w3-ripple btn1">Preset 2 (Christmas)</button><br />
         <button onclick="shuffleList()" class="w3-btn w3-round-xlarge w3-ripple btn1v2">Shuffle the List</button>
         <button onclick="go()" class="w3-btn w3-round-xlarge w3-ripple btn1v2">Go!</button>
       </div>
@@ -72,12 +56,15 @@ Option to disable looping.
     <div id="loading" class="w3-center">
       <h1>Loading...</h1>
     </div>
-    <div id="scanning" class="w3-padding w3-left" style="display: none; width: 40%;">
-      <p class="w3-center">Scanning YouTube titles...</p>
+    <div id="scanning" class="w3-padding w3-left" style="display: none; width: 40%">
+      <p class="w3-center">Loading YouTube information...</p>
       <div id="loadOutside">
-      <div class="w3-container w3-center" id="loadBar" style="width: 0px;"><span id="loadPerc" class="w3-center">0%</span></div>
+        <div class="w3-container w3-center" id="loadBar" style="width: 0px">
+          <span id="loadPerc" class="w3-center">0%</span>
+        </div>
       </div>
     </div>
+    <script src="https://www.youtube.com/iframe_api"></script>
     <script src="main.js"></script>
   </body>
 </html>
