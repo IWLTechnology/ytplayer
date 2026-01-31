@@ -1,9 +1,8 @@
-/* dark theme - work in progress */
 :root {
-    --page-background: #e8c6e8;
-    --accent-1: #cb6ce6;
-    --accent-2: #bd00bd;
-    --accent-3: #e8c6e8;
+    --page-background: #9c27b0;
+    --accent-1: #bd00bd;
+    --accent-2: #e8c6e8;
+    --accent-3: #9c27b0;
     --highlight-color: #ffffff;
-    --text-color: #9c27b0;
+    --text-color: #ffffff;
 }

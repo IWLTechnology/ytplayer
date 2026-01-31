@@ -1,7 +1,6 @@
 <!-- TODO:
 Theme font size for both
 Hide while scanning?
-Change colours (dark mode)
 Auto & manual swap between colour schemes.
 Redo controls - add back button?
 Add media controls implementation
@@ -18,12 +17,13 @@ Option to disable looping.
     <title>YouTube Player</title>
     <link rel="stylesheet" href="w3.css" />
     <link rel="stylesheet" href="main.css" />
-    <link rel="stylesheet" href="themes/light.css" />
+    <link rel="stylesheet" href="themes/light.css" id="theme" />
   </head>
   <body class="w3-padding">
     <div id="main" style="display: none">
       <h1 class="w3-center">YouTube Player</h1>
       <hr />
+      <button class="w3-btn w3-round-xlarge w3-ripple btn1" id="changeTheme" onclick="changeTheme()">Dark theme</button>
       <div id="settings" class="w3-center">
         <p>Video IDs (separate by a comma then a space):</p>
         <textarea
@@ -37,6 +37,7 @@ Option to disable looping.
         <br />
         <button onclick="preset(0)" class="w3-btn w3-round-xlarge w3-ripple btn1">Preset 1 (Church)</button>
         <button onclick="preset(1)" class="w3-btn w3-round-xlarge w3-ripple btn1">Preset 2 (Christmas)</button><br />
+        <div id="customPlaylists"></div>
         <button onclick="shuffleList()" class="w3-btn w3-round-xlarge w3-ripple btn1v2">Shuffle the List</button>
         <button onclick="go()" class="w3-btn w3-round-xlarge w3-ripple btn1v2">Go!</button>
       </div>
@@ -51,6 +52,19 @@ Option to disable looping.
         <div class="titles">
           <ul id="titleDisplay" class="w3-ul w3-hoverable w3-padding"></ul>
         </div>
+        <button class="w3-btn w3-round-xlarge w3-ripple btn1" style="margin-left:30%" onclick="saveCurrentPlaylist(0)">
+          Save as a new playlist
+        </button>
+      </div>
+    </div>
+    <div id="newPlaylist" class="w3-modal w3-center" style="display: none">
+      <div class="w3-modal-content w3-animate-zoom w3-container btn1" style="width: 30vw">
+        <div class="w3-section">
+          <input class="w3-input inputBox" placeholder="Enter playlist name..." id="newPlaylistName" />
+          <br />
+          <button class="w3-btn w3-round-xlarge w3-ripple w3-red" onclick="saveCurrentPlaylist(1)">Cancel</button>
+          <button class="w3-btn w3-round-xlarge w3-ripple w3-green" onclick="saveCurrentPlaylist(2)">Save</button>
+        </div>
       </div>
     </div>
     <div id="loading" class="w3-center">
@@ -64,6 +78,11 @@ Option to disable looping.
         </div>
       </div>
     </div>
+    <div id="rightclick-menu" class="btn2" style="display: none;">
+      <button class="w3-btn w3-ripple w3-round-xlarge btn1 rightclick-menu-item">Test</button><br>
+      <button class="w3-btn w3-ripple w3-round-xlarge btn1 rightclick-menu-item">Test 2</button>
+    </div>
+
     <script src="https://www.youtube.com/iframe_api"></script>
     <script src="main.js"></script>
   </body>

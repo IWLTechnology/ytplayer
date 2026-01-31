@@ -1,12 +1,133 @@
+var rightclickMenu = document.getElementById("rightclick-menu");
+document.addEventListener(
+    "contextmenu",
+    function (event) {
+        if (event.target.className.includes("rightclick-activate")) {
+            setupRightClick(event.target);
+            event.preventDefault();
+            var mouseX = event.clientX;
+            var mouseY = event.clientY;
+            var menuHeight = rightclickMenu.getBoundingClientRect().height;
+            var menuWidth = rightclickMenu.getBoundingClientRect().width;
+            var width = window.innerWidth;
+            var height = window.innerHeight;
+            if (width - mouseX <= 200) {
+                rightclickMenu.style.borderRadius = "1vw 0 1vw 1vw";
+                rightclickMenu.style.left = width - menuWidth + "px";
+                rightclickMenu.style.top = mouseY + "px";
+
+                if (height - mouseY <= 200) {
+                    rightclickMenu.style.top = mouseY - menuHeight + "px";
+                    rightclickMenu.style.borderRadius = "1vw 1vw 0 1vw";
+                }
+            } else {
+                rightclickMenu.style.borderRadius = "0 1vw 1vw 1vw";
+                rightclickMenu.style.left = mouseX + "px";
+                rightclickMenu.style.top = mouseY + "px";
+
+                if (height - mouseY <= 200) {
+                    rightclickMenu.style.top = mouseY - menuHeight + "px";
+                    rightclickMenu.style.borderRadius = "1vw 1vw 1vw 0";
+                }
+            }
+
+            rightclickMenu.style.display = "block";
+        }
+    },
+    { passive: false }
+);
+
+document.addEventListener("click", function (event) {
+    rightclickMenu.style.display = "none";
+});
+
+function setupRightClick(evt) {
+    if (evt.className.includes("rightclick-activate-playlist")) {
+        var plId = Number(evt.id.split("customPlaylist")[1]);
+        rightclickMenu.innerHTML = `<button class="w3-btn w3-ripple w3-round-xlarge btn1 rightclick-menu-item" onclick="renamePlaylist(${plId})">Rename playlist</button><br><button class="w3-btn w3-ripple w3-round-xlarge btn1 rightclick-menu-item" onclick="deletePlaylist(${plId})">Delete playlist</button><br>`;
+    } else if (evt.className.includes("rightclick-activate-song")) {
+        var vidId = Number(evt.id.split("titles")[1]);
+        rightclickMenu.innerHTML = `<button class="w3-btn w3-ripple w3-round-xlarge btn1 rightclick-menu-item" onclick="removeSong(${vidId})">Remove song</button><br>`;
+    }
+}
+
+function deletePlaylist(n) {
+    localData.playlists.splice(n, 1);
+    updateStorage();
+    parsePlaylists();
+}
+
+function removeSong(n) {
+    videoList.splice(n, 1);
+    titles.splice(n, 1);
+    authors.splice(n, 1);
+    document.getElementById("titleDisplay").innerHTML = "";
+    updateTitles();
+    if(n == currentVideo){
+        makeVideo();
+    }
+    highlightCurrent();
+}
+
+function renamePlaylist(n) {
+    localData.playlists[n].name = prompt("New Name?");
+    updateStorage();
+    parsePlaylists();
+}
+
 function updateStorage() {
     localStorage.setItem("dataStorage", JSON.stringify(localData));
+}
+
+function changeTheme() {
+    if (document.getElementById("theme").href.search("dark") == -1) {
+        document.getElementById("theme").href = "themes/dark.css";
+        document.getElementById("changeTheme").innerHTML = "Light theme";
+        localData.theme = "dark";
+        updateStorage();
+    } else {
+        document.getElementById("theme").href = "themes/light.css";
+        document.getElementById("changeTheme").innerHTML = "Dark theme";
+        localData.theme = "light";
+        updateStorage();
+    }
+}
+
+function saveCurrentPlaylist(opt) {
+    switch (opt) {
+        case 0:
+            document.getElementById("newPlaylist").style.display = "block";
+            break;
+        case 1:
+            document.getElementById("newPlaylist").style.display = "none";
+            break;
+        case 2:
+            if (document.getElementById("newPlaylistName").value != "") {
+                document.getElementById("newPlaylist").style.display = "none";
+                if (localData.playlists[0] == null) {
+                    localData.playlists = [];
+                }
+                localData.playlists.push({ name: document.getElementById("newPlaylistName").value, ids: videoList });
+                updateStorage();
+            }
+            break;
+    }
+}
+
+function parsePlaylists() {
+    document.getElementById("customPlaylists").innerHTML = "";
+    for (var i = 0; i < localData.playlists.length; i++) {
+        var pName = localData.playlists[i].name;
+        document.getElementById("customPlaylists").innerHTML +=
+            `<button class="w3-btn w3-round-xlarge w3-ripple btn1 rightclick-activate-playlist" onclick="customPlaylist(${i})" id="customPlaylist${i}">${pName}</button>`;
+    }
 }
 
 var localData = localStorage.getItem("dataStorage");
 if (localData == null) {
     localData = {
         ytinfo: {},
-        playlists: {},
+        playlists: [],
         theme: "light"
     };
     updateStorage();
@@ -16,7 +137,7 @@ if (localData == null) {
     } catch {
         localData = {
             ytinfo: {},
-            playlists: {},
+            playlists: [],
             theme: "light"
         };
         updateStorage();
@@ -62,9 +183,21 @@ function preset(n) {
     }
     document.getElementById("playlist").value = ta;
 }
+function customPlaylist(num) {
+    var ta = "";
+    for (var i = 0; i < localData.playlists[num].ids.length - 1; i++) {
+        ta += localData.playlists[num].ids[i] + ", ";
+    }
+    ta += localData.playlists[num].ids[localData.playlists[num].ids.length - 1];
+    document.getElementById("playlist").value = ta;
+}
 function onYouTubeIframeAPIReady() {
     document.getElementById("loading").style.display = "none";
     document.getElementById("main").style.display = "block";
+    if (localData.theme == "dark") {
+        changeTheme();
+    }
+    parsePlaylists();
 }
 function shuffleList() {
     var ls = document.getElementById("playlist").value.split(", ");
@@ -80,7 +213,7 @@ function go() {
     videoList = document.getElementById("playlist").value.split(", ");
     if (videoList != "") {
         document.getElementById("settings").style.display = "none";
-            document.getElementById("scanning").style.display = "block";
+        document.getElementById("scanning").style.display = "block";
         makeVideo();
     }
 }
@@ -235,7 +368,7 @@ function updateTitles() {
         var ti = titles[j];
         var au = authors[j];
         document.getElementById("titleDisplay").innerHTML +=
-            `<li id="titles${j}" onclick="skipTo(${j})" class="individualTitle w3-bar"><div class="w3-bar-item"><span class="w3-large">${ti}</span><br><span>${au}</span></div></li>`;
+            `<li id="titles${j}" onclick="skipTo(${j})" class="rightclick-activate-song individualTitle w3-bar"><div class="w3-bar-item"><span class="w3-large">${ti}</span><br><span>${au}</span></div></li>`;
     }
 }
 function stopVideo() {
