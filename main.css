@@ -1,7 +1,16 @@
+button{
+  margin: 0.5vh;
+}
 body {
   background-color: var(--page-background) !important;
   color: var(--text-color) !important;
   scrollbar-color: var(--accent-2) var(--highlight-color);
+  height: 100%;
+  width: 100%;
+}
+html{
+  height: 100%;
+  width: 100%;
 }
 .slider {
   position: absolute;
@@ -49,7 +58,7 @@ iframe {
   border-style: solid;
   border-width: 1px;
   border-radius: 15px;
-  height: 425px !important;
+  height: 390px !important;
   background-color: var(--accent-1);
 }
 .titles {
@@ -86,7 +95,6 @@ iframe {
 .btn1 {
   background-color: var(--accent-2) !important;
   color: var(--accent-3) !important;
-  margin-bottom: 1vh;
 }
 .btn1v2 {
   background-color: var(--text-color) !important;
@@ -105,7 +113,7 @@ iframe {
 hr {
   border-color: var(--highlight-color) !important;
 }
-#changeTheme {
+#menuButton {
   position: absolute;
   z-index: 2;
   top: 1.6em;
@@ -114,18 +122,65 @@ hr {
 #rightclick-menu {
   min-width: 10vw;
   max-width: 20vw;
- box-shadow: 0 0 20px rgba(37, 40, 42, 0.22);
- padding: 1vw;
- position: fixed;
+  box-shadow: 0 0 20px rgba(37, 40, 42, 0.22);
+  padding: 1vw;
+  position: fixed;
 }
 
 .rightclick-menu-item {
   width: 100%;
-}
-button{
   text-wrap: stable;
 }
-.inputBox{
+button {
+  text-wrap: stable;
+}
+.inputBox {
   color: var(--accent-1);
   background-color: var(--highlight-color);
+}
+#alerts {
+  z-index: 1000000000000;
+  position: absolute;
+  top: 0.5vh;
+  left: 0.5vh;
+}
+.alert {
+  border-width: 0.2vh;
+  border-style: solid;
+  color: var(--accent-1);
+  background-color: var(--highlight-color);
+  font-size: 2vh;
+  border-color: transparent;
+  border-radius: 1vh;
+  width: fit-content;
+  padding-right: 2vh;
+  padding: 0.7vh 0.7vh 0.7vh 0.7vh;
+  margin: 0.5vh 0.5vh 0.5vh 0.5vh;
+  transition: opacity 0.3s linear;
+  z-index: 100 !important;
+  line-height: 4vh;
+  max-width: 40vw;
+  text-wrap: stable;
+}
+.alertText {
+  font-size: 2vh;
+}
+.alertHead {
+  font-size: 2.7vh;
+}
+.closeAlert {
+  font-size: 1.5vh;
+}
+#menu{
+  min-width: 10vw;
+  min-height: 10vw;
+  width: fit-content;
+  height: fit-content;
+  background-color:var(--text-color);
+  padding: 0.5vw 0.5vw 0.5vw 0.5vw;
+  border-radius: 1vw 0 1vw 1vw;
+  position: absolute;
+  right: 1vw;
+  top: 4.3em;
+  z-index: 3;
 }

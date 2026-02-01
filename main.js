@@ -1,8 +1,19 @@
+function menu(opt) {
+    switch (opt) {
+        case 0:
+            if (document.getElementById("controls").style.display == "block") {
+                document.getElementById("playOnly").style.display = "block";
+            }
+            document.getElementById("menu").style.display = "block";
+            break;
+    }
+}
+
 var rightclickMenu = document.getElementById("rightclick-menu");
 document.addEventListener(
     "contextmenu",
     function (event) {
-        if (event.target.className.includes("rightclick-activate")) {
+        if (!!event.target.closest('[class*="rightclick-activate"]')) {
             setupRightClick(event.target);
             event.preventDefault();
             var mouseX = event.clientX;
@@ -39,15 +50,53 @@ document.addEventListener(
 
 document.addEventListener("click", function (event) {
     rightclickMenu.style.display = "none";
+    if (event.target.id != "menuButton") {
+        document.getElementById("menu").style.display = "none";
+    }
+});
+
+window.addEventListener("hashchange", function () {
+    openAlert("URL has changed.", "You have changed the URL of this page. You must reload for changes to take effect.");
 });
 
 function setupRightClick(evt) {
+    var songItem = event.target.closest(".rightclick-activate-song");
     if (evt.className.includes("rightclick-activate-playlist")) {
         var plId = Number(evt.id.split("customPlaylist")[1]);
         rightclickMenu.innerHTML = `<button class="w3-btn w3-ripple w3-round-xlarge btn1 rightclick-menu-item" onclick="renamePlaylist(${plId})">Rename playlist</button><br><button class="w3-btn w3-ripple w3-round-xlarge btn1 rightclick-menu-item" onclick="deletePlaylist(${plId})">Delete playlist</button><br>`;
-    } else if (evt.className.includes("rightclick-activate-song")) {
-        var vidId = Number(evt.id.split("titles")[1]);
-        rightclickMenu.innerHTML = `<button class="w3-btn w3-ripple w3-round-xlarge btn1 rightclick-menu-item" onclick="removeSong(${vidId})">Remove song</button><br>`;
+    } else if (!!songItem) {
+        if (videoList.length <= 1) {
+            rightclickMenu.innerHTML = `<button class="w3-btn w3-disabled w3-round-xlarge btn1 rightclick-menu-item">You must have at least one song.</button><br>`;
+        } else {
+            var vidId = Number(songItem.id.split("titles")[1]);
+            rightclickMenu.innerHTML = `<button class="w3-btn w3-ripple w3-round-xlarge btn1 rightclick-menu-item" onclick="removeSong(${vidId})">Remove song</button><br>`;
+        }
+    }
+}
+function openAlert(header, text) {
+    var ranID;
+    while (true) {
+        ranID = Date.now() + Math.floor(Math.random() * 100000000000000000000);
+        if (!document.getElementById("alert-" + ranID)) {
+            break;
+        }
+    }
+    setTimeout(function () {
+        closeAlert(ranID);
+    }, 10000);
+    document.getElementById("alerts").innerHTML +=
+        `<div class="alert" onclick="closeAlert(${ranID})" style="opacity:0;" id="alert-${ranID}"><span class="alertHead">${header}</span><br><span class="alertText">${text}</span><br><span class="closeAlert">Click to dismiss.</span></div>`;
+    setTimeout(function () {
+        document.getElementById("alert-" + ranID).style.opacity = 0.9;
+    }, 100);
+}
+function closeAlert(ranID) {
+    if (document.getElementById("alert-" + ranID)) {
+        document.getElementById("alert-" + ranID).style.opacity = 0;
+        setTimeout(function () {
+            document.getElementById("alert-" + ranID).style.display = "block";
+            document.getElementById("alert-" + ranID).remove();
+        }, 300);
     }
 }
 
@@ -61,11 +110,20 @@ function removeSong(n) {
     videoList.splice(n, 1);
     titles.splice(n, 1);
     authors.splice(n, 1);
+    var oldSong = currentVideo;
+    if(n < currentVideo){
+        currentVideo--;
+        if(oldSong == n){
+            makeVideo();
+        }
+    }else{
+        if(oldSong == n){
+            currentVideo--;
+            makeVideo();
+        }
+    }
     document.getElementById("titleDisplay").innerHTML = "";
     updateTitles();
-    if(n == currentVideo){
-        makeVideo();
-    }
     highlightCurrent();
 }
 
@@ -93,6 +151,75 @@ function changeTheme() {
     }
 }
 
+function decipherPageLink() {
+    var urlData = new URL(window.location.href).hash.substring(1).split(";");
+    for (var i = 0; i < urlData.length; i++) {
+        var param;
+        if (urlData[i].includes("ytpl_playlist_set:")) {
+            param = urlData[i].split("ytpl_playlist_set:")[1];
+            if (param.includes("c")) {
+                try {
+                    param = Number(param.split("c")[1]);
+                    if (document.getElementById("customPlaylist" + param)) {
+                        customPlaylist(param);
+                    } else {
+                        throw "URL config value is incorrect. No such playlist exists.";
+                    }
+                } catch (err) {
+                    openAlert(
+                        "Invalid URL configuration.",
+                        "The URL configuration value " + urlData[i] + " failed at decode with error: " + err + "."
+                    );
+                }
+            } else {
+                try {
+                    param = Number(param);
+                    if (document.getElementById("preset" + param)) {
+                        preset(param);
+                    } else {
+                        throw "URL config value is incorrect. No such playlist exists.";
+                    }
+                } catch (err) {
+                    openAlert(
+                        "Invalid URL configuration.",
+                        "The URL configuration value " + urlData[i] + " failed at decode with error: " + err
+                    );
+                }
+            }
+        } else if (urlData[i].includes("ytpl_force_theme:")) {
+            param = urlData[i].split("ytpl_force_theme:")[1];
+            if (param == "light") {
+                localData.theme = "light";
+            } else if (param == "dark") {
+                localData.theme = "dark";
+            } else {
+                openAlert(
+                    "Invalid URL configuration.",
+                    "The URL configuration value " + urlData[i] + " failed at decode with error: No such theme exists."
+                );
+            }
+        } else if (urlData[i].includes("ytpl_play_now")) {
+            if (document.getElementById("playlist").value != "") {
+                document.getElementById("main").style.display = "none";
+                document.getElementById("clickNeeded").style.display = "block";
+            } else {
+                openAlert(
+                    "Invalid URL configuration.",
+                    "The URL configuration value " +
+                        urlData[i] +
+                        " failed at decode with error: You can not 'play now' if you have not specified a playlist first."
+                );
+            }
+        }
+    }
+}
+
+function clickNeeded() {
+    document.getElementById("clickNeeded").style.display = "none";
+    document.getElementById("main").style.display = "block";
+    go();
+}
+
 function saveCurrentPlaylist(opt) {
     switch (opt) {
         case 0:
@@ -102,6 +229,73 @@ function saveCurrentPlaylist(opt) {
             document.getElementById("newPlaylist").style.display = "none";
             break;
         case 2:
+            try {
+                if (document.getElementById("newPlaylistName").value != "") {
+                    document.getElementById("newPlaylist").style.display = "none";
+                    if (localData.playlists[0] == null) {
+                        localData.playlists = [];
+                    }
+                    localData.playlists.push({
+                        name: document.getElementById("newPlaylistName").value,
+                        ids: videoList
+                    });
+                    updateStorage();
+                    openAlert(
+                        "Playlist saved.",
+                        "The custom playlist '" + document.getElementById("newPlaylistName").value + "' was saved."
+                    );
+                } else {
+                    openAlert("Enter a playlist name.", "You must enter a playlist name.");
+                }
+            } catch (err) {
+                openAlert("Error.", "The following error occurred when saving: " + err);
+            }
+            break;
+    }
+}
+
+function overwritePlaylist(opt) {
+    switch (opt) {
+        case 0:
+            document.getElementById("toOverwrite").innerHTML = "";
+            for (var i = 0; i < localData.playlists.length; i++) {
+                var pName = localData.playlists[i].name;
+                document.getElementById("toOverwrite").innerHTML +=
+                    `<button class="w3-btn w3-round-xlarge w3-ripple btn2 rightclick-activate-playlist" onclick="overwritePlaylist('overwrite${i}')" id="overwritePlaylistButton${i}">${pName}</button>`;
+            }
+            document.getElementById("overwritePlaylist").style.display = "block";
+            break;
+        case 1:
+            document.getElementById("overwritePlaylist").style.display = "none";
+            break;
+        default:
+            try {
+                opt = Number(opt.split("overwrite")[1]);
+                var oldName = localData.playlists[opt].name;
+                document.getElementById("overwritePlaylist").style.display = "none";
+                localData.playlists[opt] = {
+                    name: oldName,
+                    ids: videoList
+                };
+                updateStorage();
+                openAlert("Playlist overwritten.", "The custom playlist '" + oldName + "' was overwritten.");
+            } catch (err) {
+                openAlert("Error.", "The following error occurred when saving: " + err);
+            }
+            break;
+    }
+}
+
+function importVideo(opt) {
+    switch (opt) {
+        case 0:
+            document.getElementById("importVideo").style.display = "block";
+            break;
+        case 1:
+            document.getElementById("importVideo").style.display = "none";
+            break;
+        case 2:
+            /*try{
             if (document.getElementById("newPlaylistName").value != "") {
                 document.getElementById("newPlaylist").style.display = "none";
                 if (localData.playlists[0] == null) {
@@ -109,7 +303,13 @@ function saveCurrentPlaylist(opt) {
                 }
                 localData.playlists.push({ name: document.getElementById("newPlaylistName").value, ids: videoList });
                 updateStorage();
+                openAlert("Playlist saved.", "The custom playlist, " + document.getElementById("newPlaylistName").value + ", was saved.");
+            }else{
+                openAlert("Enter a playlist name.", "You must enter a playlist name.");
             }
+            }catch(err){
+                openAlert("Error.", "The following error occurred when saving: " + err);
+            }*/
             break;
     }
 }
@@ -192,12 +392,13 @@ function customPlaylist(num) {
     document.getElementById("playlist").value = ta;
 }
 function onYouTubeIframeAPIReady() {
+    parsePlaylists();
     document.getElementById("loading").style.display = "none";
     document.getElementById("main").style.display = "block";
+    decipherPageLink();
     if (localData.theme == "dark") {
         changeTheme();
     }
-    parsePlaylists();
 }
 function shuffleList() {
     var ls = document.getElementById("playlist").value.split(", ");

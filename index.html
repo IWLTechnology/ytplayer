@@ -1,15 +1,16 @@
 <!-- TODO:
 Theme font size for both
+Page responsiveness
 Hide while scanning?
 Auto & manual swap between colour schemes.
 Redo controls - add back button?
 Add media controls implementation
 Remove complex setup and place in settings
-Save playlists in cookies
 Convert YT playlist to this function playlist.
 Link to activate playlist
 Songs already played are dark text col, those not are light.
 Option to disable looping.
+Fix error assosciated with looping (1 after looping)
 -->
 <!doctype html>
 <html lang="en">
@@ -20,10 +21,32 @@ Option to disable looping.
     <link rel="stylesheet" href="themes/light.css" id="theme" />
   </head>
   <body class="w3-padding">
+    <div id="alerts"></div>
+    <div id="clickNeeded" style="display: none">
+      <button
+        class="w3-btn w3-round-xlarge w3-ripple btn1" onclick="clickNeeded();" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%)">
+        Click to play now
+      </button>
+    </div>
+    <div id="menu" style="display: none">
+      <button class="w3-btn w3-round-xlarge w3-ripple btn2" id="changeTheme" onclick="changeTheme()">Dark theme</button
+      ><br />
+      <div id="playOnly" style="display: none">
+        <!--<button class="w3-btn w3-round-xlarge w3-ripple btn2" onclick="importVideo(0)">
+          Import video
+        </button><br>-->
+        <button class="w3-btn w3-round-xlarge w3-ripple btn2" onclick="overwritePlaylist(0)">
+          Overwrite existing playlist
+        </button><br>
+        <button class="w3-btn w3-round-xlarge w3-ripple btn2" onclick="saveCurrentPlaylist(0)">
+          Save as a new playlist
+        </button><br>
+      </div>
+    </div>
     <div id="main" style="display: none">
       <h1 class="w3-center">YouTube Player</h1>
+      <button class="w3-btn w3-round-xlarge w3-ripple btn1" id="menuButton" onclick="menu(0)">Menu</button>
       <hr />
-      <button class="w3-btn w3-round-xlarge w3-ripple btn1" id="changeTheme" onclick="changeTheme()">Dark theme</button>
       <div id="settings" class="w3-center">
         <p>Video IDs (separate by a comma then a space):</p>
         <textarea
@@ -35,8 +58,12 @@ Option to disable looping.
           style="border-width: 0 0 0 0"></textarea>
         <br />
         <br />
-        <button onclick="preset(0)" class="w3-btn w3-round-xlarge w3-ripple btn1">Preset 1 (Church)</button>
-        <button onclick="preset(1)" class="w3-btn w3-round-xlarge w3-ripple btn1">Preset 2 (Christmas)</button><br />
+        <button onclick="preset(0)" class="w3-btn w3-round-xlarge w3-ripple btn1" id="preset0">
+          Preset 1 (Church)
+        </button>
+        <button onclick="preset(1)" class="w3-btn w3-round-xlarge w3-ripple btn1" id="preset1">
+          Preset 2 (Christmas)</button
+        ><br />
         <div id="customPlaylists"></div>
         <button onclick="shuffleList()" class="w3-btn w3-round-xlarge w3-ripple btn1v2">Shuffle the List</button>
         <button onclick="go()" class="w3-btn w3-round-xlarge w3-ripple btn1v2">Go!</button>
@@ -52,9 +79,6 @@ Option to disable looping.
         <div class="titles">
           <ul id="titleDisplay" class="w3-ul w3-hoverable w3-padding"></ul>
         </div>
-        <button class="w3-btn w3-round-xlarge w3-ripple btn1" style="margin-left:30%" onclick="saveCurrentPlaylist(0)">
-          Save as a new playlist
-        </button>
       </div>
     </div>
     <div id="newPlaylist" class="w3-modal w3-center" style="display: none">
@@ -64,6 +88,25 @@ Option to disable looping.
           <br />
           <button class="w3-btn w3-round-xlarge w3-ripple w3-red" onclick="saveCurrentPlaylist(1)">Cancel</button>
           <button class="w3-btn w3-round-xlarge w3-ripple w3-green" onclick="saveCurrentPlaylist(2)">Save</button>
+        </div>
+      </div>
+    </div>
+    <div id="overwritePlaylist" class="w3-modal w3-center" style="display: none">
+      <div class="w3-modal-content w3-animate-zoom w3-container btn1" style="width: 30vw">
+        <div class="w3-section">
+          <span>Select a playlist to overwrite:</span><br>
+          <div id="toOverwrite"></div>
+          <br />
+          <button class="w3-btn w3-round-xlarge w3-ripple w3-red" onclick="overwritePlaylist(1)">Cancel</button>
+        </div>
+      </div>
+    </div>
+    <div id="importVideo" class="w3-modal w3-center" style="display: none">
+      <div class="w3-modal-content w3-animate-zoom w3-container btn1" style="width: 30vw">
+        <div class="w3-section">
+
+          <br />
+          <button class="w3-btn w3-round-xlarge w3-ripple w3-red" onclick="importVideo(1)">Cancel</button>
         </div>
       </div>
     </div>
@@ -78,9 +121,7 @@ Option to disable looping.
         </div>
       </div>
     </div>
-    <div id="rightclick-menu" class="btn2" style="display: none;">
-      <button class="w3-btn w3-ripple w3-round-xlarge btn1 rightclick-menu-item">Test</button><br>
-      <button class="w3-btn w3-ripple w3-round-xlarge btn1 rightclick-menu-item">Test 2</button>
+    <div id="rightclick-menu" class="btn2" style="display: none">
     </div>
 
     <script src="https://www.youtube.com/iframe_api"></script>
