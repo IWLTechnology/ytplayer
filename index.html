@@ -2,15 +2,11 @@
 Theme font size for both
 Page responsiveness
 Hide while scanning?
-Auto & manual swap between colour schemes.
 Redo controls - add back button?
 Add media controls implementation
 Remove complex setup and place in settings
 Convert YT playlist to this function playlist.
-Link to activate playlist
 Songs already played are dark text col, those not are light.
-Option to disable looping.
-Fix error assosciated with looping (1 after looping)
 -->
 <!doctype html>
 <html lang="en">
@@ -24,24 +20,33 @@ Fix error assosciated with looping (1 after looping)
     <div id="alerts"></div>
     <div id="clickNeeded" style="display: none">
       <button
-        class="w3-btn w3-round-xlarge w3-ripple btn1" onclick="clickNeeded();" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%)">
+        class="w3-btn w3-round-xlarge w3-ripple btn1"
+        onclick="clickNeeded();"
+        style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%)">
         Click to play now
       </button>
     </div>
     <div id="menu" style="display: none">
       <button class="w3-btn w3-round-xlarge w3-ripple btn2" id="changeTheme" onclick="changeTheme()">Dark theme</button
       ><br />
+      <button class="w3-btn w3-round-xlarge w3-ripple btn2" id="changeLooping" onclick="changeLooping()">
+        Disable looping</button
+      ><br />
       <div id="playOnly" style="display: none">
         <!--<button class="w3-btn w3-round-xlarge w3-ripple btn2" onclick="importVideo(0)">
           Import video
+        </button><br>
+        <button class="w3-btn w3-round-xlarge w3-ripple btn2" onclick="importPlaylist(0)">
+          Import playlist
         </button><br>-->
-        <button class="w3-btn w3-round-xlarge w3-ripple btn2" onclick="overwritePlaylist(0)">
-          Overwrite existing playlist
-        </button><br>
         <button class="w3-btn w3-round-xlarge w3-ripple btn2" onclick="saveCurrentPlaylist(0)">
-          Save as a new playlist
-        </button><br>
+          Save as a new playlist</button
+        ><br />
+        <button class="w3-btn w3-round-xlarge w3-ripple btn2" onclick="overwritePlaylist(0)">
+          Overwrite existing playlist</button
+        ><br />
       </div>
+      <button class="w3-btn w3-round-xlarge w3-ripple btn2" onclick="urlHelp(0)">URL Help</button><br />
     </div>
     <div id="main" style="display: none">
       <h1 class="w3-center">YouTube Player</h1>
@@ -81,6 +86,43 @@ Fix error assosciated with looping (1 after looping)
         </div>
       </div>
     </div>
+    <div id="playDone" class="w3-modal w3-center" style="display: none">
+      <div class="w3-modal-content w3-animate-zoom w3-container btn2" style="width: 50vw">
+        <div class="w3-section">
+          <h1>Playlist finished. Play again?</h1>
+          <br />
+          <button class="w3-btn w3-round-xlarge w3-ripple w3-red" onclick="playDone(0)">Exit</button>
+          <button class="w3-btn w3-round-xlarge w3-ripple w3-green" onclick="playDone(1)">Yes</button>
+          <button class="w3-btn w3-round-xlarge w3-ripple w3-green" onclick="playDone(2)">
+            Yes, and enable looping by default
+          </button>
+        </div>
+      </div>
+    </div>
+    <div id="urlHelp" class="w3-modal w3-center" style="display: none">
+      <div
+        class="w3-modal-content w3-animate-zoom w3-container btn1"
+        style="width: 30vw; height: 60vh; overflow-y: auto; text-wrap: stable;">
+        <div class="w3-section">
+          <h1>URL Help</h1>
+          <p>
+            URL options can be placed after a # in the address bar, and separated by a semi-colon. <br />
+            E.g [PAGE URL]#ytpl_theme:dark;ytpl_looping:off<br /><br />
+            <b>Current options are:</b><br />
+            ytpl_theme:[DARK OR LIGHT]. Force set the theme.<br />
+            ytpl_looping:[ON OR OFF]. Force set the looping setting.<br />
+            ytpl_playlist:[NUMBER or CNUMBER]. Enter the number of a playlist to automatically load. E.g 0 (the first
+            button), or c0 (the first custom playlist).<br />
+            ytpl_shuffle. Shuffle the playlist. Must be placed after ytpl_playlist.<br />
+            ytpl_play_now. Play the chosen playlist with all other settings immediately on page load. Must be placed
+            after ytpl_playlist and any other values.<br /><br />
+            So, an example using all the above values (spaces added for clarity, don't use them) is [PAGE
+            URL]#ytpl_theme:dark; ytpl_looping:off; ytpl_playlist:1; ytpl_shuffle; ytpl_play_now
+          </p>
+          <button class="w3-btn w3-round-xlarge w3-ripple btn2" onclick="urlHelp(1)">Close</button>
+        </div>
+      </div>
+    </div>
     <div id="newPlaylist" class="w3-modal w3-center" style="display: none">
       <div class="w3-modal-content w3-animate-zoom w3-container btn1" style="width: 30vw">
         <div class="w3-section">
@@ -94,7 +136,7 @@ Fix error assosciated with looping (1 after looping)
     <div id="overwritePlaylist" class="w3-modal w3-center" style="display: none">
       <div class="w3-modal-content w3-animate-zoom w3-container btn1" style="width: 30vw">
         <div class="w3-section">
-          <span>Select a playlist to overwrite:</span><br>
+          <span>Select a playlist to overwrite:</span><br />
           <div id="toOverwrite"></div>
           <br />
           <button class="w3-btn w3-round-xlarge w3-ripple w3-red" onclick="overwritePlaylist(1)">Cancel</button>
@@ -104,7 +146,6 @@ Fix error assosciated with looping (1 after looping)
     <div id="importVideo" class="w3-modal w3-center" style="display: none">
       <div class="w3-modal-content w3-animate-zoom w3-container btn1" style="width: 30vw">
         <div class="w3-section">
-
           <br />
           <button class="w3-btn w3-round-xlarge w3-ripple w3-red" onclick="importVideo(1)">Cancel</button>
         </div>
@@ -121,8 +162,7 @@ Fix error assosciated with looping (1 after looping)
         </div>
       </div>
     </div>
-    <div id="rightclick-menu" class="btn2" style="display: none">
-    </div>
+    <div id="rightclick-menu" class="btn2" style="display: none"></div>
 
     <script src="https://www.youtube.com/iframe_api"></script>
     <script src="main.js"></script>
