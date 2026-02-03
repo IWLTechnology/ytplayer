@@ -60,6 +60,7 @@ iframe {
   border-radius: 15px;
   height: 390px !important;
   background-color: var(--accent-1);
+  overflow: hidden;
 }
 .titles {
   height: 300px;

@@ -1,3 +1,14 @@
+var blockClose = false;
+window.onbeforeunload = function (e) {
+    if (blockClose) {
+        e = e || window.event;
+        if (e) {
+            e.returnValue = "Any string";
+        }
+        return "Any string";
+    }
+};
+
 function menu(opt) {
     switch (opt) {
         case 0:
@@ -262,7 +273,7 @@ function decipherPageLink() {
                     "Invalid URL configuration.",
                     "The URL configuration value '" +
                         urlData[i] +
-                        "' could not be decoded. Current options can be found under Menu -> URL Help"
+                        "' could not be decoded. Current options can be found under Menu -> URL Configuration Help"
                 );
             }
         }
@@ -414,7 +425,7 @@ if (localData.looping == null) {
     localData.looping = "true";
 }
 if (localData.looping == "false") {
-    document.getElementById("changeLooping").innerHTML = "Disable looping";
+    document.getElementById("changeLooping").innerHTML = "Enable looping";
 }
 var player;
 var currentVideo = -1;
@@ -539,6 +550,7 @@ function playDone(opt) {
     }
 }
 function makeVideo() {
+    blockClose = true;
     try {
         player.destroy();
     } catch {}
@@ -555,7 +567,6 @@ function makeVideo() {
         }
     } else {
         currentVideoId = videoList[currentVideo];
-        console.log(currentVideo, currentVideoId, scanning);
         if (localData.ytinfo[currentVideoId] == null || !scanning) {
             player = new YT.Player("player", {
                 height: "390",

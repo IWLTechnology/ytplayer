@@ -7,6 +7,7 @@ Add media controls implementation
 Remove complex setup and place in settings
 Convert YT playlist to this function playlist.
 Songs already played are dark text col, those not are light.
+Make rename look better
 -->
 <!doctype html>
 <html lang="en">
@@ -46,7 +47,7 @@ Songs already played are dark text col, those not are light.
           Overwrite existing playlist</button
         ><br />
       </div>
-      <button class="w3-btn w3-round-xlarge w3-ripple btn2" onclick="urlHelp(0)">URL Help</button><br />
+      <button class="w3-btn w3-round-xlarge w3-ripple btn2" onclick="urlHelp(0)">URL Configuration Help</button><br />
     </div>
     <div id="main" style="display: none">
       <h1 class="w3-center">YouTube Player</h1>
@@ -86,7 +87,7 @@ Songs already played are dark text col, those not are light.
         </div>
       </div>
     </div>
-    <div id="playDone" class="w3-modal w3-center" style="display: none">
+    <div id="playDone" class="w3-modal w3-center" style="display: none; background-color: darkgrey;">
       <div class="w3-modal-content w3-animate-zoom w3-container btn2" style="width: 50vw">
         <div class="w3-section">
           <h1>Playlist finished. Play again?</h1>
@@ -104,7 +105,7 @@ Songs already played are dark text col, those not are light.
         class="w3-modal-content w3-animate-zoom w3-container btn1"
         style="width: 30vw; height: 60vh; overflow-y: auto; text-wrap: stable;">
         <div class="w3-section">
-          <h1>URL Help</h1>
+          <h1>URL Configuration Help</h1>
           <p>
             URL options can be placed after a # in the address bar, and separated by a semi-colon. <br />
             E.g [PAGE URL]#ytpl_theme:dark;ytpl_looping:off<br /><br />
@@ -116,8 +117,8 @@ Songs already played are dark text col, those not are light.
             ytpl_shuffle. Shuffle the playlist. Must be placed after ytpl_playlist.<br />
             ytpl_play_now. Play the chosen playlist with all other settings immediately on page load. Must be placed
             after ytpl_playlist and any other values.<br /><br />
-            So, an example using all the above values (spaces added for clarity, don't use them) is [PAGE
-            URL]#ytpl_theme:dark; ytpl_looping:off; ytpl_playlist:1; ytpl_shuffle; ytpl_play_now
+            So, an example using all the above values is [PAGE
+            URL]#ytpl_theme:dark;<br>ytpl_looping:off;<br>ytpl_playlist:1;<br>ytpl_shuffle;<br>ytpl_play_now
           </p>
           <button class="w3-btn w3-round-xlarge w3-ripple btn2" onclick="urlHelp(1)">Close</button>
         </div>
