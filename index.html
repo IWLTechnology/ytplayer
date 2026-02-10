@@ -2,12 +2,12 @@
 Theme font size for both
 Page responsiveness
 Hide while scanning?
-Redo controls - add back button?
+Redo controls
 Add media controls implementation
 Remove complex setup and place in settings
 Convert YT playlist to this function playlist.
-Songs already played are dark text col, those not are light.
 Make rename look better
+URL option for basic/expert mode
 -->
 <!doctype html>
 <html lang="en">
@@ -54,16 +54,20 @@ Make rename look better
       <button class="w3-btn w3-round-xlarge w3-ripple btn1" id="menuButton" onclick="menu(0)">Menu</button>
       <hr />
       <div id="settings" class="w3-center">
-        <p>Video IDs (separate by a comma then a space):</p>
-        <textarea
-          id="playlist"
-          placeholder="Enter the YouTube Video IDs here."
-          rows="6"
-          cols="50"
-          class="w3-round w3-padding-small"
-          style="border-width: 0 0 0 0"></textarea>
-        <br />
-        <br />
+        <div id="complexSettings" class="w3-center" style="display: none">
+          <p>Video IDs (separate by a comma then a space):</p>
+          <textarea
+            id="playlist"
+            placeholder="Enter the YouTube Video IDs here."
+            rows="6"
+            cols="50"
+            class="w3-round w3-padding-small"
+            style="border-width: 0 0 0 0"></textarea>
+        </div>
+        <br>
+        <button class="w3-btn w3-round-xlarge w3-ripple btn1" id="expertToggle" onclick="expertMode()">
+          Expert mode</button
+        ><br />
         <button onclick="preset(0)" class="w3-btn w3-round-xlarge w3-ripple btn1" id="preset0">
           Preset 1 (Church)
         </button>
@@ -78,6 +82,7 @@ Make rename look better
       <div id="controls" class="w3-left" style="display: none; width: 40%">
         <div id="controlsBar" class="w3-center">
           <br />
+          <button onclick="controls(-1)" class="w3-btn w3-round-xlarge w3-ripple btn2">Back</button>
           <button onclick="controls(0)" class="w3-btn w3-round-xlarge w3-ripple btn2">Pause/Play</button>
           <button onclick="controls(1)" class="w3-btn w3-round-xlarge w3-ripple btn2">Next</button>
           <br /><br />
@@ -87,7 +92,7 @@ Make rename look better
         </div>
       </div>
     </div>
-    <div id="playDone" class="w3-modal w3-center" style="display: none; background-color: darkgrey;">
+    <div id="playDone" class="w3-modal w3-center" style="display: none; background-color: darkgrey">
       <div class="w3-modal-content w3-animate-zoom w3-container btn2" style="width: 50vw">
         <div class="w3-section">
           <h1>Playlist finished. Play again?</h1>
@@ -103,7 +108,7 @@ Make rename look better
     <div id="urlHelp" class="w3-modal w3-center" style="display: none">
       <div
         class="w3-modal-content w3-animate-zoom w3-container btn1"
-        style="width: 30vw; height: 60vh; overflow-y: auto; text-wrap: stable;">
+        style="width: 30vw; height: 60vh; overflow-y: auto; text-wrap: stable">
         <div class="w3-section">
           <h1>URL Configuration Help</h1>
           <p>
@@ -117,8 +122,7 @@ Make rename look better
             ytpl_shuffle. Shuffle the playlist. Must be placed after ytpl_playlist.<br />
             ytpl_play_now. Play the chosen playlist with all other settings immediately on page load. Must be placed
             after ytpl_playlist and any other values.<br /><br />
-            So, an example using all the above values is [PAGE
-            URL]#ytpl_theme:dark;<br>ytpl_looping:off;<br>ytpl_playlist:1;<br>ytpl_shuffle;<br>ytpl_play_now
+            So, an example using all the above values is [PAGE URL]#ytpl_theme:dark;<br />ytpl_looping:off;<br />ytpl_playlist:1;<br />ytpl_shuffle;<br />ytpl_play_now
           </p>
           <button class="w3-btn w3-round-xlarge w3-ripple btn2" onclick="urlHelp(1)">Close</button>
         </div>
