@@ -174,17 +174,31 @@ function changeLooping() {
     }
 }
 
-function expertMode() {
-    if (localData.expertMode == "true") {
-        document.getElementById("expertToggle").innerHTML = "Expert mode";
-        document.getElementById("complexSettings").style.display = "none";
-        localData.expertMode = "false";
-        updateStorage();
-    } else {
-        document.getElementById("expertToggle").innerHTML = "Basic mode";
-        document.getElementById("complexSettings").style.display = "block";
-        localData.expertMode = "true";
-        updateStorage();
+function expertMode(opt) {
+    switch (opt) {
+        case "on":
+            document.getElementById("expertToggle").innerHTML = "Basic mode";
+            document.getElementById("complexSettings").style.display = "block";
+            localData.expertMode = "true";
+            break;
+        case "off":
+            document.getElementById("expertToggle").innerHTML = "Expert mode";
+            document.getElementById("complexSettings").style.display = "none";
+            localData.expertMode = "false";
+            break;
+        default:
+            if (localData.expertMode == "true") {
+                document.getElementById("expertToggle").innerHTML = "Expert mode";
+                document.getElementById("complexSettings").style.display = "none";
+                localData.expertMode = "false";
+                updateStorage();
+            } else {
+                document.getElementById("expertToggle").innerHTML = "Basic mode";
+                document.getElementById("complexSettings").style.display = "block";
+                localData.expertMode = "true";
+                updateStorage();
+            }
+            break;
     }
 }
 
@@ -235,6 +249,20 @@ function decipherPageLink() {
                     "The URL configuration value " +
                         urlData[i] +
                         " failed at decode with error: No such theme exists. Options are 'dark' and 'light'."
+                );
+            }
+        } else if (urlData[i].includes("ytpl_expert:")) {
+            param = urlData[i].split("ytpl_expert:")[1];
+            if (param == "on") {
+                expertMode("on");
+            } else if (param == "off") {
+                expertMode("off");
+            } else {
+                openAlert(
+                    "Invalid URL configuration.",
+                    "The URL configuration value " +
+                        urlData[i] +
+                        " failed at decode with error: No such option exists. Options are 'on' and 'off'."
                 );
             }
         } else if (urlData[i].includes("ytpl_looping:")) {
@@ -527,7 +555,7 @@ function controls(a) {
         case -1:
             if (currentVideo != 0) {
                 currentVideo -= 2;
-            }else{
+            } else {
                 currentVideo = videoList.length - 2;
             }
             makeVideo();

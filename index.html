@@ -1,13 +1,10 @@
 <!-- TODO:
 Theme font size for both
 Page responsiveness
-Hide while scanning?
 Redo controls
 Add media controls implementation
-Remove complex setup and place in settings
-Convert YT playlist to this function playlist.
+Import video & playlist functions
 Make rename look better
-URL option for basic/expert mode
 -->
 <!doctype html>
 <html lang="en">
@@ -64,7 +61,7 @@ URL option for basic/expert mode
             class="w3-round w3-padding-small"
             style="border-width: 0 0 0 0"></textarea>
         </div>
-        <br>
+        <br />
         <button class="w3-btn w3-round-xlarge w3-ripple btn1" id="expertToggle" onclick="expertMode()">
           Expert mode</button
         ><br />
@@ -116,13 +113,15 @@ URL option for basic/expert mode
             E.g [PAGE URL]#ytpl_theme:dark;ytpl_looping:off<br /><br />
             <b>Current options are:</b><br />
             ytpl_theme:[DARK OR LIGHT]. Force set the theme.<br />
+            ytpl_expert:[ON OR OFF]. Force set expert mode.<br />
             ytpl_looping:[ON OR OFF]. Force set the looping setting.<br />
             ytpl_playlist:[NUMBER or CNUMBER]. Enter the number of a playlist to automatically load. E.g 0 (the first
             button), or c0 (the first custom playlist).<br />
             ytpl_shuffle. Shuffle the playlist. Must be placed after ytpl_playlist.<br />
             ytpl_play_now. Play the chosen playlist with all other settings immediately on page load. Must be placed
             after ytpl_playlist and any other values.<br /><br />
-            So, an example using all the above values is [PAGE URL]#ytpl_theme:dark;<br />ytpl_looping:off;<br />ytpl_playlist:1;<br />ytpl_shuffle;<br />ytpl_play_now
+            So, an example using all the above values is [PAGE URL]#ytpl_theme:dark;<br />ytpl_expert:on;
+            <br />ytpl_looping:off;<br />ytpl_playlist:1;<br />ytpl_shuffle;<br />ytpl_play_now
           </p>
           <button class="w3-btn w3-round-xlarge w3-ripple btn2" onclick="urlHelp(1)">Close</button>
         </div>
