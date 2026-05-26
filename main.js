@@ -1,1 +1,866 @@
-var currentPlaylistRename,player,blockClose=!1,isNew={};function menu(e){0===e&&("block"==document.getElementById("controls").style.display&&(document.getElementById("playOnly").style.display="block"),document.getElementById("menu").style.display="block")}window.onbeforeunload=function(e){if(blockClose)return(e=e||window.event)&&(e.returnValue="Any string"),"Any string"};var rightclickMenu=document.getElementById("rightclick-menu");function setupRightClick(e){var t=event.target.closest(".rightclick-activate-song");if(e.className.includes("rightclick-activate-playlist")){var l=Number(e.id.split("customPlaylist")[1]);rightclickMenu.innerHTML=`<button class="w3-btn w3-ripple w3-round-xlarge btn1 rightclick-menu-item" onclick="renamePlaylist(${l})">Rename playlist</button><br><button class="w3-btn w3-ripple w3-round-xlarge btn1 rightclick-menu-item" onclick="deletePlaylist(${l})">Delete playlist</button><br>`}else if(t){if(videoList.length<=1)rightclickMenu.innerHTML='<button class="w3-btn w3-disabled w3-round-xlarge btn1 rightclick-menu-item">You must have at least one song.</button><br>';else{var a=Number(t.id.split("titles")[1]);rightclickMenu.innerHTML=`<button class="w3-btn w3-ripple w3-round-xlarge btn1 rightclick-menu-item" onclick="removeSong(${a})">Remove song</button><br>`}}}function openAlert(e,t){for(var l;l=Date.now()+Math.floor(1e20*Math.random()),document.getElementById("alert-"+l););setTimeout(function(){closeAlert(l)},1e4),document.getElementById("alerts").innerHTML+=`<div class="alert" onclick="closeAlert(${l})" style="opacity:0;" id="alert-${l}"><span class="alertHead">${e}</span><br><span class="alertText">${t}</span><br><span class="closeAlert">Click to dismiss.</span></div>`,setTimeout(function(){document.getElementById("alert-"+l).style.opacity=.9},100)}function closeAlert(e){document.getElementById("alert-"+e)&&(document.getElementById("alert-"+e).style.opacity=0,setTimeout(function(){document.getElementById("alert-"+e).style.display="block",document.getElementById("alert-"+e).remove()},300))}function deletePlaylist(e){localData.playlists.splice(e,1),updateStorage(),parsePlaylists()}function removeSong(e){videoList.splice(e,1),titles.splice(e,1),authors.splice(e,1);var t=currentVideo;e<currentVideo?(currentVideo--,t==e&&makeVideo()):t==e&&(currentVideo--,makeVideo()),document.getElementById("titleDisplay").innerHTML="",updateTitles(),highlightCurrent()}function renamePlaylist(e){switch(e){case"c":document.getElementById("renamePlaylist").style.display="none";break;case"s":var t=document.getElementById("renamePlaylistInput").value;t.length>0&&t.length<20?(localData.playlists[currentPlaylistRename].name=t,updateStorage(),parsePlaylists(),openAlert("Playlist renamed.","The custom playlist was successfully renamed.")):openAlert("Playlist rename failed.","Please choose a name that is less than 20 characters and not empty."),document.getElementById("renamePlaylist").style.display="none";break;default:currentPlaylistRename=e,document.getElementById("renamePlaylistInput").value=localData.playlists[currentPlaylistRename].name,document.getElementById("renamePlaylist").style.display="block"}}function updateStorage(){localStorage.setItem("dataStorage",JSON.stringify(localData))}function changeTheme(){-1==document.getElementById("theme").href.search("dark")?(document.getElementById("theme").href="themes/dark.css",document.getElementById("changeTheme").innerHTML="Light theme",localData.theme="dark",updateStorage()):(document.getElementById("theme").href="themes/light.css",document.getElementById("changeTheme").innerHTML="Dark theme",localData.theme="light",updateStorage())}function changeLooping(){"true"==localData.looping?(document.getElementById("changeLooping").innerHTML="Enable looping",localData.looping="false",updateStorage()):(document.getElementById("changeLooping").innerHTML="Disable looping",localData.looping="true",updateStorage())}function expertMode(e){switch(e){case"on":document.getElementById("expertToggle").innerHTML="Basic mode",document.getElementById("complexSettings").style.display="block",localData.expertMode="true";break;case"off":document.getElementById("expertToggle").innerHTML="Expert mode",document.getElementById("complexSettings").style.display="none",localData.expertMode="false";break;default:"true"==localData.expertMode?(document.getElementById("expertToggle").innerHTML="Expert mode",document.getElementById("complexSettings").style.display="none",localData.expertMode="false",updateStorage()):(document.getElementById("expertToggle").innerHTML="Basic mode",document.getElementById("complexSettings").style.display="block",localData.expertMode="true",updateStorage())}}function decipherPageLink(){for(var e,t=new URL(window.location.href).hash.substring(1).split(";"),l=0;l<t.length;l++)if(t[l].includes("ytpl_playlist:")){if((e=t[l].split("ytpl_playlist:")[1]).includes("c"))try{if(e=Number(e.split("c")[1]),document.getElementById("customPlaylist"+e))customPlaylist(e);else throw"URL config value is incorrect. No such playlist exists."}catch(a){openAlert("Invalid URL configuration.","The URL configuration value "+t[l]+" failed at decode with error: "+a+".")}else try{if(e=Number(e),document.getElementById("preset"+e))preset(e);else throw"URL config value is incorrect. No such playlist exists."}catch(n){openAlert("Invalid URL configuration.","The URL configuration value "+t[l]+" failed at decode with error: "+n)}}else if(t[l].includes("ytpl_theme:"))"light"==(e=t[l].split("ytpl_theme:")[1])?localData.theme="light":"dark"==e?localData.theme="dark":openAlert("Invalid URL configuration.","The URL configuration value "+t[l]+" failed at decode with error: No such theme exists. Options are 'dark' and 'light'.");else if(t[l].includes("ytpl_expert:"))"on"==(e=t[l].split("ytpl_expert:")[1])?expertMode("on"):"off"==e?expertMode("off"):openAlert("Invalid URL configuration.","The URL configuration value "+t[l]+" failed at decode with error: No such option exists. Options are 'on' and 'off'.");else if(t[l].includes("ytpl_looping:"))"on"==(e=t[l].split("ytpl_looping:")[1])?localData.looping="true":"off"==e?localData.looping="false":openAlert("Invalid URL configuration.","The URL configuration value "+t[l]+" failed at decode with error: No such option exists. Options are 'on' and 'off'.");else if(t[l].includes("ytpl_shuffle"))try{""!=document.getElementById("playlist").value?shuffleList():openAlert("Invalid URL configuration.","The URL configuration value "+t[l]+" failed at decode with error: You can not 'shuffle' if you have not specified a playlist first.")}catch(i){openAlert("Invalid URL configuration.","The URL configuration value "+t[l]+" failed at decode with error: "+i)}else t[l].includes("ytpl_play_now")?""!=document.getElementById("playlist").value?(document.getElementById("main").style.display="none",document.getElementById("clickNeeded").style.display="block"):openAlert("Invalid URL configuration.","The URL configuration value "+t[l]+" failed at decode with error: You can not 'play now' if you have not specified a playlist first."):t[l].length>0&&openAlert("Invalid URL configuration.","The URL configuration value '"+t[l]+"' could not be decoded. Current options can be found under Menu -> URL Configuration Help")}function urlHelp(e){switch(e){case 0:document.getElementById("urlHelp").style.display="block";break;case 1:document.getElementById("urlHelp").style.display="none"}}function clickNeeded(){document.getElementById("clickNeeded").style.display="none",document.getElementById("main").style.display="block",go()}function saveCurrentPlaylist(e){switch(e){case 0:document.getElementById("newPlaylist").style.display="block";break;case 1:document.getElementById("newPlaylist").style.display="none";break;case 2:try{""!=document.getElementById("newPlaylistName").value?(document.getElementById("newPlaylist").style.display="none",null==localData.playlists[0]&&(localData.playlists=[]),localData.playlists.push({name:document.getElementById("newPlaylistName").value,ids:videoList}),updateStorage(),openAlert("Playlist saved.","The custom playlist '"+document.getElementById("newPlaylistName").value+"' was saved.")):openAlert("Enter a playlist name.","You must enter a playlist name.")}catch(t){openAlert("Error.","The following error occurred when saving: "+t)}}}function overwritePlaylist(e){switch(e){case 0:document.getElementById("toOverwrite").innerHTML="";for(var t=0;t<localData.playlists.length;t++){var l=localData.playlists[t].name;document.getElementById("toOverwrite").innerHTML+=`<button class="w3-btn w3-round-xlarge w3-ripple btn2 rightclick-activate-playlist" onclick="overwritePlaylist('overwrite${t}')" id="overwritePlaylistButton${t}">${l}</button>`}document.getElementById("overwritePlaylist").style.display="block";break;case 1:document.getElementById("overwritePlaylist").style.display="none";break;default:try{e=Number(e.split("overwrite")[1]);var a=localData.playlists[e].name;document.getElementById("overwritePlaylist").style.display="none",localData.playlists[e]={name:a,ids:videoList},updateStorage(),openAlert("Playlist overwritten.","The custom playlist '"+a+"' was overwritten.")}catch(n){openAlert("Error.","The following error occurred when saving: "+n)}}}function importVideo(e){switch(e){case 0:document.getElementById("importVideo").style.display="block",document.getElementById("importVideoInput").value="";break;case 1:document.getElementById("importVideo").style.display="none";break;case 2:var t;document.getElementById("importVideo").style.display="none";try{t=new URL(document.getElementById("importVideoInput").value).searchParams.get("v")}catch{}if(null==t)openAlert("Please enter valid Youtube video URL.","Please enter a valid Youtube video URL.");else{videoList.push(t);try{titles.push(localData.ytinfo[t].title||`Awaiting fetch (id: ${t})`)}catch{titles.push(`Unknown: Awaiting fetch (id: ${t})`)}try{authors.push(localData.ytinfo[t].author||"Unknown Author")}catch{authors.push("Unknown Author")}document.getElementById("titleDisplay").innerHTML="",isNew[t]=!0,updateTitles(),highlightCurrent(),openAlert("Video Imported.","The video has been imported. You must play it for its data to be fetched. Please remember to save your changes.")}}}function parsePlaylists(){document.getElementById("customPlaylists").innerHTML="";for(var e=0;e<localData.playlists.length;e++){var t=localData.playlists[e].name;document.getElementById("customPlaylists").innerHTML+=`<button class="w3-btn w3-round-xlarge w3-ripple btn1 rightclick-activate-playlist" onclick="customPlaylist(${e})" id="customPlaylist${e}">${t}</button>`}}document.addEventListener("contextmenu",function(e){if(e.target.closest('[class*="rightclick-activate"]')){setupRightClick(e.target),e.preventDefault();var t=e.clientX,l=e.clientY,a=rightclickMenu.getBoundingClientRect().height,n=rightclickMenu.getBoundingClientRect().width,i=window.innerWidth,o=window.innerHeight;i-t<=200?(rightclickMenu.style.borderRadius="1vw 0 1vw 1vw",rightclickMenu.style.left=i-n+"px",rightclickMenu.style.top=l+"px",o-l<=200&&(rightclickMenu.style.top=l-a+"px",rightclickMenu.style.borderRadius="1vw 1vw 0 1vw")):(rightclickMenu.style.borderRadius="0 1vw 1vw 1vw",rightclickMenu.style.left=t+"px",rightclickMenu.style.top=l+"px",o-l<=200&&(rightclickMenu.style.top=l-a+"px",rightclickMenu.style.borderRadius="1vw 1vw 1vw 0")),rightclickMenu.style.display="block"}},{passive:!1}),document.addEventListener("click",function(e){rightclickMenu.style.display="none","menuButton"!=e.target.id&&(document.getElementById("menu").style.display="none")}),window.addEventListener("hashchange",function(){openAlert("URL has changed.","You have changed the URL of this page. You must reload for changes to take effect.")});var localData=localStorage.getItem("dataStorage");if(null==localData)localData={ytinfo:{},playlists:[],theme:"light",looping:"true",expertMode:"false"},updateStorage();else try{localData=JSON.parse(localData)}catch{localData={ytinfo:{},playlists:[],theme:"light",looping:"true",expertMode:"false"},updateStorage()}null==localData.looping&&(localData.looping="true"),"false"==localData.looping&&(document.getElementById("changeLooping").innerHTML="Enable looping"),"true"==localData.expertMode&&(document.getElementById("expertToggle").innerHTML="Basic mode",document.getElementById("complexSettings").style.display="block");var currentVideo=-1,currentVideoId="",scanning=!0,scanId=0,titles=[],titlesOn=!0,authors=[];function preset(e){var t;switch(e){case 0:t="ZLN-TYJJ_9Q, -iVU0TWlwv0, ciQvJsGyHrA, rrGiwJH19sE, 6846K3h2xmc, YIb4NC5ikYo, YNLNoID_Smk, WDCkC3vnJZs, SgR1J4YRhIA, fWpvknKuYrg, 0pkWrvCZDHA, qga1wBBajcA, 1c3uibrPcVs, jVHLp8Szlw4, xMnHsCRNkJk, i73UkuC8gyE, hE2N_qMfoU0, eETqwfsNxiU, 19gZJrXnx3M, CLC_5iqTIsY, iU9nK5rSwjY, xXG30QwhezY, fhS83a5Ky84, E-r7ogDaaEQ, cjBu517iHcw";break;case 1:t="iaZPURV9h_s, N4j2gaKXibg, 19PY5kGS1Sg, -AUwJJHrDFw, b_bMweUkr-k, 2PCC94HC_ag, Is6Xcc7ixNY, h7a7YlcVb3M, Ko9c10m2uX0, I0PrDxe13IQ, H5vmWobxqso, c33C06oWe-4, erjN98Kco2c, Y2vlzwTbhko, uIzTkeZ5WWY, LN1cqABGM5Q, oW5_ifZBIMs"}document.getElementById("playlist").value=t}function customPlaylist(e){for(var t="",l=0;l<localData.playlists[e].ids.length-1;l++)t+=localData.playlists[e].ids[l]+", ";t+=localData.playlists[e].ids[localData.playlists[e].ids.length-1],document.getElementById("playlist").value=t}function onYouTubeIframeAPIReady(){parsePlaylists(),document.getElementById("loading").style.display="none",document.getElementById("main").style.display="block",decipherPageLink(),"dark"==localData.theme&&changeTheme()}function shuffleList(){var e=document.getElementById("playlist").value.split(", ");e=shuffle(e);for(var t="",l=0;l<e.length-1;l++)t+=e[l]+", ";t+=e[e.length-1],document.getElementById("playlist").value=t}function go(){""!=(videoList=document.getElementById("playlist").value.split(", "))&&(document.getElementById("settings").style.display="none",document.getElementById("scanning").style.display="block",makeVideo())}function controls(e){switch(e){case -1:0!=currentVideo?currentVideo-=2:currentVideo=videoList.length-2,makeVideo();break;case 0:1==player.getPlayerState()?player.pauseVideo():player.playVideo();break;case 1:makeVideo()}}function shuffle(e){for(var t,l,a=e.length;a;)l=Math.floor(Math.random()*a--),t=e[a],e[a]=e[l],e[l]=t;return e}function playDone(e){switch(e){case 0:window.location.reload();break;case 1:currentVideo=-1,makeVideo(),document.getElementById("playDone").style.display="none";break;case 2:localData.looping="true",document.getElementById("changeLooping").innerHTML="Disable looping",updateStorage(),makeVideo(),document.getElementById("playDone").style.display="none"}}function ytInfo(e){switch(e){case"export":var t=new Blob([JSON.stringify(localData.ytinfo)],{type:"application/json"}),l=URL.createObjectURL(t),a=document.createElement("a"),n=Date.now();a.href=l,a.download=`YTPlayer-backup-${n}.json`,a.click(),URL.revokeObjectURL(l);break;case"import":var i=document.createElement("input");i.type="file",i.addEventListener("change",e=>{var t=e.target.files[0];let l=new FileReader;l.onload=e=>{localData.ytinfo={...localData.ytinfo,...JSON.parse(e.target.result)},updateStorage()},l.readAsText(t)}),i.click(),i.remove()}}function makeVideo(){blockClose=!0;try{player.destroy()}catch{}currentVideo++;try{highlightCurrent()}catch{}if(currentVideo>videoList.length-1)"true"==localData.looping?(currentVideo=-1,makeVideo()):document.getElementById("playDone").style.display="block";else if(currentVideoId=videoList[currentVideo],null!=localData.ytinfo[currentVideoId]&&scanning){if(titles[scanId]=localData.ytinfo[currentVideoId].title,authors[scanId]=localData.ytinfo[currentVideoId].author,scanId<videoList.length-1){var e=++scanId/videoList.length;document.getElementById("loadPerc").innerHTML=Math.floor(100*e)+"%",document.getElementById("loadBar").style.width=Number(window.getComputedStyle(document.getElementById("loadOutside"),null).getPropertyValue("width").split("px")[0])*e+"px"}else scanning=!1,currentVideo=-1,updateTitles(),document.getElementById("scanning").style.display="none",document.getElementById("controls").style.display="block";makeVideo()}else player=new YT.Player("player",{height:"390",width:"640",videoId:currentVideoId,playerVars:{playsinline:1,mute:scanning,autoplay:1},events:{onReady:onPlayerReady,onStateChange:onPlayerStateChange,onError:onError}})}function onError(){if(scanning){if(titles[scanId]="Video Error",authors[scanId]="Video Error",scanId<videoList.length){var e=++scanId/videoList.length;document.getElementById("loadPerc").innerHTML=Math.floor(100*e)+"%",document.getElementById("loadBar").style.width=Number(window.getComputedStyle(document.getElementById("loadOutside"),null).getPropertyValue("width").split("px")[0])*e+"px"}else scanning=!1,currentVideo=-1,updateTitles(),document.getElementById("scanning").style.display="none",document.getElementById("controls").style.display="block"}makeVideo()}function onPlayerStateChange(e){if(e.data==YT.PlayerState.ENDED)makeVideo();else if(e.data==YT.PlayerState.PLAYING){if(scanning){if(titles[scanId]=getVideoInfo(0),authors[scanId]=getVideoInfo(1),scanId<videoList.length-1){var t=++scanId/videoList.length;document.getElementById("loadPerc").innerHTML=Math.floor(100*t)+"%",document.getElementById("loadBar").style.width=Number(window.getComputedStyle(document.getElementById("loadOutside"),null).getPropertyValue("width").split("px")[0])*t+"px"}else scanning=!1,currentVideo=-1,updateTitles(),document.getElementById("scanning").style.display="none",document.getElementById("controls").style.display="block";makeVideo()}else{isNew[videoList[currentVideo]]&&(titles[currentVideo]=getVideoInfo(0),authors[currentVideo]=getVideoInfo(1),document.getElementById("titleDisplay").innerHTML="",updateTitles(),highlightCurrent());var l=titles[currentVideo],a=authors[currentVideo];document.getElementById("titles"+currentVideo).innerHTML=`<div class="w3-bar-item"><span class="w3-large">${l}</span><br><span>${a}</span></div>`}}}function updateTitles(){for(var e=0;e<titles.length;e++){var t=titles[e],l=authors[e];document.getElementById("titleDisplay").innerHTML+=`<li id="titles${e}" onclick="skipTo(${e})" class="rightclick-activate-song individualTitle w3-bar"><div class="w3-bar-item"><span class="w3-large">${t}</span><br><span>${l}</span></div></li>`}}function stopVideo(){player.stopVideo()}function getVideoInfo(e){try{var t=player.getVideoData();if(localData.ytinfo[currentVideoId]=t,updateStorage(),0==e)return t.title;return t.author}catch(l){return"Video is Unavailable"}}function onPlayerReady(e){e.target.playVideo()}function skipTo(e){currentVideo=e-1,makeVideo()}function highlightCurrent(){for(var e=document.getElementsByClassName("individualTitle"),t=0;t<e.length;t++)e[t].style.color="var(--accent-2)";var l=document.getElementById("titles"+currentVideo);l.style.color="var(--highlight-color)",l.scrollIntoView()}
+var blockClose = false;
+var isNew = {};
+window.onbeforeunload = function (e) {
+    if (blockClose) {
+        e = e || window.event;
+        if (e) {
+            e.returnValue = "Are you sure?";
+        }
+        return "Are you sure?";
+    }
+};
+
+function menu(opt) {
+    switch (opt) {
+        case 0:
+            if (document.getElementById("controls").style.display == "block") {
+                document.getElementById("playOnly").style.display = "block";
+            }
+            document.getElementById("menu").style.display = "block";
+            break;
+    }
+}
+
+var rightclickMenu = document.getElementById("rightclick-menu");
+document.addEventListener(
+    "contextmenu",
+    function (event) {
+        if (!!event.target.closest('[class*="rightclick-activate"]')) {
+            setupRightClick(event.target);
+            event.preventDefault();
+            var mouseX = event.clientX;
+            var mouseY = event.clientY;
+            var menuHeight = rightclickMenu.getBoundingClientRect().height;
+            var menuWidth = rightclickMenu.getBoundingClientRect().width;
+            var width = window.innerWidth;
+            var height = window.innerHeight;
+            if (width - mouseX <= 200) {
+                rightclickMenu.style.borderRadius = "1vw 0 1vw 1vw";
+                rightclickMenu.style.left = width - menuWidth + "px";
+                rightclickMenu.style.top = mouseY + "px";
+
+                if (height - mouseY <= 200) {
+                    rightclickMenu.style.top = mouseY - menuHeight + "px";
+                    rightclickMenu.style.borderRadius = "1vw 1vw 0 1vw";
+                }
+            } else {
+                rightclickMenu.style.borderRadius = "0 1vw 1vw 1vw";
+                rightclickMenu.style.left = mouseX + "px";
+                rightclickMenu.style.top = mouseY + "px";
+
+                if (height - mouseY <= 200) {
+                    rightclickMenu.style.top = mouseY - menuHeight + "px";
+                    rightclickMenu.style.borderRadius = "1vw 1vw 1vw 0";
+                }
+            }
+
+            rightclickMenu.style.display = "block";
+        }
+    },
+    { passive: false }
+);
+
+document.addEventListener("click", function (event) {
+    rightclickMenu.style.display = "none";
+    if (event.target.id != "menuButton") {
+        document.getElementById("menu").style.display = "none";
+    }
+});
+
+window.addEventListener("hashchange", function () {
+    openAlert("URL has changed.", "You have changed the URL of this page. You must reload for changes to take effect.");
+});
+
+function setupRightClick(evt) {
+    var songItem = event.target.closest(".rightclick-activate-song");
+    if (evt.className.includes("rightclick-activate-playlist")) {
+        var plId = Number(evt.id.split("customPlaylist")[1]);
+        rightclickMenu.innerHTML = `<button class="w3-btn w3-ripple w3-round-xlarge btn1 rightclick-menu-item" onclick="renamePlaylist(${plId})">Rename playlist</button><br><button class="w3-btn w3-ripple w3-round-xlarge btn1 rightclick-menu-item" onclick="deletePlaylist(${plId})">Delete playlist</button><br>`;
+    } else if (!!songItem) {
+        if (videoList.length <= 1) {
+            rightclickMenu.innerHTML = `<button class="w3-btn w3-disabled w3-round-xlarge btn1 rightclick-menu-item">You must have at least one song.</button><br>`;
+        } else {
+            var vidId = Number(songItem.id.split("titles")[1]);
+            rightclickMenu.innerHTML = `<button class="w3-btn w3-ripple w3-round-xlarge btn1 rightclick-menu-item" onclick="removeSong(${vidId})">Remove song</button><br>`;
+        }
+    }
+}
+function openAlert(header, text) {
+    var ranID;
+    while (true) {
+        ranID = Date.now() + Math.floor(Math.random() * 100000000000000000000);
+        if (!document.getElementById("alert-" + ranID)) {
+            break;
+        }
+    }
+    setTimeout(function () {
+        closeAlert(ranID);
+    }, 10000);
+    document.getElementById("alerts").innerHTML +=
+        `<div class="alert" onclick="closeAlert(${ranID})" style="opacity:0;" id="alert-${ranID}"><span class="alertHead">${header}</span><br><span class="alertText">${text}</span><br><span class="closeAlert">Click to dismiss.</span></div>`;
+    setTimeout(function () {
+        document.getElementById("alert-" + ranID).style.opacity = 0.9;
+    }, 100);
+}
+function closeAlert(ranID) {
+    if (document.getElementById("alert-" + ranID)) {
+        document.getElementById("alert-" + ranID).style.opacity = 0;
+        setTimeout(function () {
+            document.getElementById("alert-" + ranID).style.display = "block";
+            document.getElementById("alert-" + ranID).remove();
+        }, 300);
+    }
+}
+
+function deletePlaylist(n) {
+    localData.playlists.splice(n, 1);
+    updateStorage();
+    parsePlaylists();
+}
+
+function removeSong(n) {
+    videoList.splice(n, 1);
+    titles.splice(n, 1);
+    authors.splice(n, 1);
+    var oldSong = currentVideo;
+    if (n < currentVideo) {
+        currentVideo--;
+        if (oldSong == n) {
+            makeVideo();
+        }
+    } else {
+        if (oldSong == n) {
+            currentVideo--;
+            makeVideo();
+        }
+    }
+    document.getElementById("titleDisplay").innerHTML = "";
+    updateTitles();
+    highlightCurrent();
+}
+var currentPlaylistRename;
+function renamePlaylist(n) {
+    switch (n) {
+        case "c":
+            document.getElementById("renamePlaylist").style.display = "none";
+            break;
+        case "s":
+            var tmp = document.getElementById("renamePlaylistInput").value;
+            if (tmp.length > 0 && tmp.length < 20) {
+                localData.playlists[currentPlaylistRename].name = tmp;
+                updateStorage();
+                parsePlaylists();
+                openAlert("Playlist renamed.", "The custom playlist was successfully renamed.");
+            } else {
+                openAlert(
+                    "Playlist rename failed.",
+                    "Please choose a name that is less than 20 characters and not empty."
+                );
+            }
+            document.getElementById("renamePlaylist").style.display = "none";
+            break;
+        default:
+            currentPlaylistRename = n;
+            document.getElementById("renamePlaylistInput").value = localData.playlists[currentPlaylistRename].name;
+            document.getElementById("renamePlaylist").style.display = "block";
+            break;
+    }
+}
+
+function updateStorage() {
+    localStorage.setItem("dataStorage", JSON.stringify(localData));
+}
+
+function changeTheme() {
+    if (document.getElementById("theme").href.search("dark") == -1) {
+        document.getElementById("theme").href = "themes/dark.css";
+        document.getElementById("changeTheme").innerHTML = "Light theme";
+        localData.theme = "dark";
+        updateStorage();
+    } else {
+        document.getElementById("theme").href = "themes/light.css";
+        document.getElementById("changeTheme").innerHTML = "Dark theme";
+        localData.theme = "light";
+        updateStorage();
+    }
+}
+
+function changeLooping() {
+    if (localData.looping == "true") {
+        document.getElementById("changeLooping").innerHTML = "Enable looping";
+        localData.looping = "false";
+        updateStorage();
+    } else {
+        document.getElementById("changeLooping").innerHTML = "Disable looping";
+        localData.looping = "true";
+        updateStorage();
+    }
+}
+
+function expertMode(opt) {
+    switch (opt) {
+        case "on":
+            document.getElementById("expertToggle").innerHTML = "Basic mode";
+            document.getElementById("complexSettings").style.display = "block";
+            localData.expertMode = "true";
+            break;
+        case "off":
+            document.getElementById("expertToggle").innerHTML = "Expert mode";
+            document.getElementById("complexSettings").style.display = "none";
+            localData.expertMode = "false";
+            break;
+        default:
+            if (localData.expertMode == "true") {
+                document.getElementById("expertToggle").innerHTML = "Expert mode";
+                document.getElementById("complexSettings").style.display = "none";
+                localData.expertMode = "false";
+                updateStorage();
+            } else {
+                document.getElementById("expertToggle").innerHTML = "Basic mode";
+                document.getElementById("complexSettings").style.display = "block";
+                localData.expertMode = "true";
+                updateStorage();
+            }
+            break;
+    }
+}
+
+function decipherPageLink() {
+    var urlData = new URL(window.location.href).hash.substring(1).split(";");
+    for (var i = 0; i < urlData.length; i++) {
+        var param;
+        if (urlData[i].includes("ytpl_playlist:")) {
+            param = urlData[i].split("ytpl_playlist:")[1];
+            if (param.includes("c")) {
+                try {
+                    param = Number(param.split("c")[1]);
+                    if (document.getElementById("customPlaylist" + param)) {
+                        customPlaylist(param);
+                    } else {
+                        throw "URL config value is incorrect. No such playlist exists.";
+                    }
+                } catch (err) {
+                    openAlert(
+                        "Invalid URL configuration.",
+                        "The URL configuration value " + urlData[i] + " failed at decode with error: " + err + "."
+                    );
+                }
+            } else {
+                try {
+                    param = Number(param);
+                    if (document.getElementById("preset" + param)) {
+                        preset(param);
+                    } else {
+                        throw "URL config value is incorrect. No such playlist exists.";
+                    }
+                } catch (err) {
+                    openAlert(
+                        "Invalid URL configuration.",
+                        "The URL configuration value " + urlData[i] + " failed at decode with error: " + err
+                    );
+                }
+            }
+        } else if (urlData[i].includes("ytpl_theme:")) {
+            param = urlData[i].split("ytpl_theme:")[1];
+            if (param == "light") {
+                localData.theme = "light";
+            } else if (param == "dark") {
+                localData.theme = "dark";
+            } else {
+                openAlert(
+                    "Invalid URL configuration.",
+                    "The URL configuration value " +
+                        urlData[i] +
+                        " failed at decode with error: No such theme exists. Options are 'dark' and 'light'."
+                );
+            }
+        } else if (urlData[i].includes("ytpl_expert:")) {
+            param = urlData[i].split("ytpl_expert:")[1];
+            if (param == "on") {
+                expertMode("on");
+            } else if (param == "off") {
+                expertMode("off");
+            } else {
+                openAlert(
+                    "Invalid URL configuration.",
+                    "The URL configuration value " +
+                        urlData[i] +
+                        " failed at decode with error: No such option exists. Options are 'on' and 'off'."
+                );
+            }
+        } else if (urlData[i].includes("ytpl_looping:")) {
+            param = urlData[i].split("ytpl_looping:")[1];
+            if (param == "on") {
+                localData.looping = "true";
+            } else if (param == "off") {
+                localData.looping = "false";
+            } else {
+                openAlert(
+                    "Invalid URL configuration.",
+                    "The URL configuration value " +
+                        urlData[i] +
+                        " failed at decode with error: No such option exists. Options are 'on' and 'off'."
+                );
+            }
+        } else if (urlData[i].includes("ytpl_shuffle")) {
+            try {
+                if (document.getElementById("playlist").value != "") {
+                    shuffleList();
+                } else {
+                    openAlert(
+                        "Invalid URL configuration.",
+                        "The URL configuration value " +
+                            urlData[i] +
+                            " failed at decode with error: You can not 'shuffle' if you have not specified a playlist first."
+                    );
+                }
+            } catch (err) {
+                openAlert(
+                    "Invalid URL configuration.",
+                    "The URL configuration value " + urlData[i] + " failed at decode with error: " + err
+                );
+            }
+        } else if (urlData[i].includes("ytpl_play_now")) {
+            if (document.getElementById("playlist").value != "") {
+                document.getElementById("main").style.display = "none";
+                document.getElementById("clickNeeded").style.display = "block";
+            } else {
+                openAlert(
+                    "Invalid URL configuration.",
+                    "The URL configuration value " +
+                        urlData[i] +
+                        " failed at decode with error: You can not 'play now' if you have not specified a playlist first."
+                );
+            }
+        } else {
+            if (urlData[i].length > 0) {
+                openAlert(
+                    "Invalid URL configuration.",
+                    "The URL configuration value '" +
+                        urlData[i] +
+                        "' could not be decoded. Current options can be found under Menu -> URL Configuration Help"
+                );
+            }
+        }
+    }
+}
+function urlHelp(opt) {
+    switch (opt) {
+        case 0:
+            document.getElementById("urlHelp").style.display = "block";
+            break;
+        case 1:
+            document.getElementById("urlHelp").style.display = "none";
+            break;
+    }
+}
+
+function clickNeeded() {
+    document.getElementById("clickNeeded").style.display = "none";
+    document.getElementById("main").style.display = "block";
+    go();
+}
+
+function saveCurrentPlaylist(opt) {
+    switch (opt) {
+        case 0:
+            document.getElementById("newPlaylist").style.display = "block";
+            break;
+        case 1:
+            document.getElementById("newPlaylist").style.display = "none";
+            break;
+        case 2:
+            try {
+                if (document.getElementById("newPlaylistName").value != "") {
+                    document.getElementById("newPlaylist").style.display = "none";
+                    if (localData.playlists[0] == null) {
+                        localData.playlists = [];
+                    }
+                    localData.playlists.push({
+                        name: document.getElementById("newPlaylistName").value,
+                        ids: videoList
+                    });
+                    updateStorage();
+                    openAlert(
+                        "Playlist saved.",
+                        "The custom playlist '" + document.getElementById("newPlaylistName").value + "' was saved."
+                    );
+                } else {
+                    openAlert("Enter a playlist name.", "You must enter a playlist name.");
+                }
+            } catch (err) {
+                openAlert("Error.", "The following error occurred when saving: " + err);
+            }
+            break;
+    }
+}
+
+function overwritePlaylist(opt) {
+    switch (opt) {
+        case 0:
+            document.getElementById("toOverwrite").innerHTML = "";
+            for (var i = 0; i < localData.playlists.length; i++) {
+                var pName = localData.playlists[i].name;
+                document.getElementById("toOverwrite").innerHTML +=
+                    `<button class="w3-btn w3-round-xlarge w3-ripple btn2 rightclick-activate-playlist" onclick="overwritePlaylist('overwrite${i}')" id="overwritePlaylistButton${i}">${pName}</button>`;
+            }
+            document.getElementById("overwritePlaylist").style.display = "block";
+            break;
+        case 1:
+            document.getElementById("overwritePlaylist").style.display = "none";
+            break;
+        default:
+            try {
+                opt = Number(opt.split("overwrite")[1]);
+                var oldName = localData.playlists[opt].name;
+                document.getElementById("overwritePlaylist").style.display = "none";
+                localData.playlists[opt] = {
+                    name: oldName,
+                    ids: videoList
+                };
+                updateStorage();
+                openAlert("Playlist overwritten.", "The custom playlist '" + oldName + "' was overwritten.");
+            } catch (err) {
+                openAlert("Error.", "The following error occurred when saving: " + err);
+            }
+            break;
+    }
+}
+
+function importVideo(opt) {
+    switch (opt) {
+        case 0:
+            document.getElementById("importVideo").style.display = "block";
+            document.getElementById("importVideoInput").value = "";
+            break;
+        case 1:
+            document.getElementById("importVideo").style.display = "none";
+            break;
+        case 2:
+            document.getElementById("importVideo").style.display = "none";
+            var vId;
+            try {
+                vId = new URL(document.getElementById("importVideoInput").value).searchParams.get("v");
+            } catch {}
+            if (vId == null) {
+                openAlert("Please enter valid Youtube video URL.", "Please enter a valid Youtube video URL.");
+            } else {
+                videoList.push(vId);
+                try {
+                    titles.push(localData.ytinfo[vId].title || `Awaiting fetch (id: ${vId})`);
+                } catch {
+                    titles.push(`Unknown: Awaiting fetch (id: ${vId})`);
+                }
+                try {
+                    authors.push(localData.ytinfo[vId].author || "Unknown Author");
+                } catch {
+                    authors.push("Unknown Author");
+                }
+                document.getElementById("titleDisplay").innerHTML = "";
+                isNew[vId] = true;
+                updateTitles();
+                highlightCurrent();
+                openAlert(
+                    "Video Imported.",
+                    "The video has been imported. You must play it for its data to be fetched. Please remember to save your changes."
+                );
+            }
+            break;
+    }
+}
+
+function parsePlaylists() {
+    document.getElementById("customPlaylists").innerHTML = "";
+    for (var i = 0; i < localData.playlists.length; i++) {
+        var pName = localData.playlists[i].name;
+        document.getElementById("customPlaylists").innerHTML +=
+            `<button class="w3-btn w3-round-xlarge w3-ripple btn1 rightclick-activate-playlist" onclick="customPlaylist(${i})" id="customPlaylist${i}">${pName}</button>`;
+    }
+}
+
+var localData = localStorage.getItem("dataStorage");
+if (localData == null) {
+    localData = {
+        ytinfo: {},
+        playlists: [],
+        theme: "light",
+        looping: "true",
+        expertMode: "false"
+    };
+    updateStorage();
+} else {
+    try {
+        localData = JSON.parse(localData);
+    } catch {
+        localData = {
+            ytinfo: {},
+            playlists: [],
+            theme: "light",
+            looping: "true",
+            expertMode: "false"
+        };
+        updateStorage();
+    }
+}
+if (localData.looping == null) {
+    localData.looping = "true";
+}
+if (localData.looping == "false") {
+    document.getElementById("changeLooping").innerHTML = "Enable looping";
+}
+if (localData.expertMode == "true") {
+    document.getElementById("expertToggle").innerHTML = "Basic mode";
+    document.getElementById("complexSettings").style.display = "block";
+}
+var player;
+var currentVideo = -1;
+var currentVideoId = "";
+var scanning = true;
+var scanId = 0;
+var titles = [];
+var titlesOn = true;
+var authors = [];
+function preset(n) {
+    var ta;
+    switch (n) {
+        case 0:
+            ta =
+                "ZLN-TYJJ_9Q, -iVU0TWlwv0, ciQvJsGyHrA, rrGiwJH19sE, 6846K3h2xmc, YIb4NC5ikYo, YNLNoID_Smk, WDCkC3vnJZs, SgR1J4YRhIA, fWpvknKuYrg, 0pkWrvCZDHA, qga1wBBajcA, 1c3uibrPcVs, jVHLp8Szlw4, xMnHsCRNkJk, i73UkuC8gyE, hE2N_qMfoU0, eETqwfsNxiU, 19gZJrXnx3M, CLC_5iqTIsY, iU9nK5rSwjY, xXG30QwhezY, fhS83a5Ky84, E-r7ogDaaEQ, TfiYWaeAcRw";
+            break;
+        case 1:
+            ta =
+                "iaZPURV9h_s, N4j2gaKXibg, 19PY5kGS1Sg, -AUwJJHrDFw, b_bMweUkr-k, 2PCC94HC_ag, Is6Xcc7ixNY, h7a7YlcVb3M, Ko9c10m2uX0, I0PrDxe13IQ, H5vmWobxqso, c33C06oWe-4, erjN98Kco2c, Y2vlzwTbhko, uIzTkeZ5WWY, LN1cqABGM5Q, oW5_ifZBIMs";
+            break;
+    }
+    document.getElementById("playlist").value = ta;
+}
+function customPlaylist(num) {
+    var ta = "";
+    for (var i = 0; i < localData.playlists[num].ids.length - 1; i++) {
+        ta += localData.playlists[num].ids[i] + ", ";
+    }
+    ta += localData.playlists[num].ids[localData.playlists[num].ids.length - 1];
+    document.getElementById("playlist").value = ta;
+}
+function onYouTubeIframeAPIReady() {
+    parsePlaylists();
+    document.getElementById("loading").style.display = "none";
+    document.getElementById("main").style.display = "block";
+    decipherPageLink();
+    if (localData.theme == "dark") {
+        changeTheme();
+    }
+}
+function shuffleList() {
+    var ls = document.getElementById("playlist").value.split(", ");
+    ls = shuffle(ls);
+    var ret = "";
+    for (var i = 0; i < ls.length - 1; i++) {
+        ret += ls[i] + ", ";
+    }
+    ret += ls[ls.length - 1];
+    document.getElementById("playlist").value = ret;
+}
+function go() {
+    videoList = document.getElementById("playlist").value.split(", ");
+    if (videoList != "") {
+        document.getElementById("settings").style.display = "none";
+        document.getElementById("scanning").style.display = "block";
+        makeVideo();
+    }
+}
+function controls(a) {
+    switch (a) {
+        case -1:
+            if (currentVideo != 0) {
+                currentVideo -= 2;
+            } else {
+                currentVideo = videoList.length - 2;
+            }
+            makeVideo();
+            break;
+        case 0:
+            var state = player.getPlayerState();
+            if (state == 1) {
+                player.pauseVideo();
+            } else {
+                player.playVideo();
+            }
+            break;
+        case 1:
+            makeVideo();
+            break;
+    }
+}
+function shuffle(array) {
+    var m = array.length,
+        t,
+        i;
+    while (m) {
+        i = Math.floor(Math.random() * m--);
+        t = array[m];
+        array[m] = array[i];
+        array[i] = t;
+    }
+
+    return array;
+}
+function playDone(opt) {
+    switch (opt) {
+        case 0:
+            window.location.reload();
+            break;
+        case 1:
+            currentVideo = -1;
+            makeVideo();
+            document.getElementById("playDone").style.display = "none";
+            break;
+        case 2:
+            localData.looping = "true";
+            document.getElementById("changeLooping").innerHTML = "Disable looping";
+            updateStorage();
+            makeVideo();
+            document.getElementById("playDone").style.display = "none";
+            break;
+    }
+}
+
+function ytInfo(m) {
+    switch (m) {
+        case "export":
+            var blob = new Blob([JSON.stringify(localData.ytinfo)], { type: "application/json" });
+            var url = URL.createObjectURL(blob);
+            var link = document.createElement("a");
+            var d = Date.now();
+            link.href = url;
+            link.download = `YTPlayer-backup-${d}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+            break;
+        case "import":
+            var ele = document.createElement("input");
+            ele.type = "file";
+            ele.addEventListener("change", (e) => {
+                var file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    localData.ytinfo = { ...localData.ytinfo, ...JSON.parse(event.target.result) };
+                    updateStorage();
+                    openAlert("Data cache restored.", "The data cache has been successfully restored.");
+                };
+                reader.readAsText(file);
+            });
+            ele.click();
+            ele.remove();
+            break;
+    }
+}
+
+function ytPl(m) {
+    switch (m) {
+        case "export":
+            var blob = new Blob([JSON.stringify(localData.playlists)], { type: "application/json" });
+            var url = URL.createObjectURL(blob);
+            var link = document.createElement("a");
+            var d = Date.now();
+            link.href = url;
+            link.download = `YTPlayer-playlists-${d}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+            break;
+        case "import":
+            var ele = document.createElement("input");
+            ele.type = "file";
+            ele.addEventListener("change", (e) => {
+                var file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    var existingIds = new Set(localData.playlists.map((item) => item.id));
+                    var newItems = JSON.parse(event.target.result).filter((item) => !existingIds.has(item.id));
+                    localData.playlists = [...localData.playlists, ...newItems];
+                    console.log(localData.playlists);
+                    updateStorage();
+                    parsePlaylists();
+                    openAlert("Playlists imported.", "The playlists have been imported successfully.");
+                };
+                reader.readAsText(file);
+            });
+            ele.click();
+            ele.remove();
+            break;
+    }
+}
+
+function makeVideo() {
+    blockClose = true;
+    try {
+        player.destroy();
+    } catch {}
+    currentVideo++;
+    try {
+        highlightCurrent();
+    } catch {}
+    if (currentVideo > videoList.length - 1) {
+        if (localData.looping == "true") {
+            currentVideo = -1;
+            makeVideo();
+        } else {
+            document.getElementById("playDone").style.display = "block";
+        }
+    } else {
+        currentVideoId = videoList[currentVideo];
+        if (localData.ytinfo[currentVideoId] == null || !scanning) {
+            player = new YT.Player("player", {
+                height: "390",
+                width: "640",
+                videoId: currentVideoId,
+                playerVars: {
+                    playsinline: 1,
+                    mute: scanning,
+                    autoplay: 1
+                },
+                events: {
+                    onReady: onPlayerReady,
+                    onStateChange: onPlayerStateChange,
+                    onError: onError
+                }
+            });
+        } else {
+            titles[scanId] = localData.ytinfo[currentVideoId].title;
+            authors[scanId] = localData.ytinfo[currentVideoId].author;
+            if (scanId < videoList.length - 1) {
+                scanId++;
+                var perc = scanId / videoList.length;
+                document.getElementById("loadPerc").innerHTML = Math.floor(perc * 100) + "%";
+                document.getElementById("loadBar").style.width =
+                    Number(
+                        window
+                            .getComputedStyle(document.getElementById("loadOutside"), null)
+                            .getPropertyValue("width")
+                            .split("px")[0]
+                    ) *
+                        perc +
+                    "px";
+            } else {
+                scanning = false;
+                currentVideo = -1;
+                updateTitles();
+                document.getElementById("scanning").style.display = "none";
+                document.getElementById("controls").style.display = "block";
+            }
+            makeVideo();
+        }
+    }
+}
+function onError() {
+    if (scanning) {
+        titles[scanId] = "Video Error";
+        authors[scanId] = "Video Error";
+        if (scanId < videoList.length) {
+            scanId++;
+            var perc = scanId / videoList.length;
+            document.getElementById("loadPerc").innerHTML = Math.floor(perc * 100) + "%";
+            document.getElementById("loadBar").style.width =
+                Number(
+                    window
+                        .getComputedStyle(document.getElementById("loadOutside"), null)
+                        .getPropertyValue("width")
+                        .split("px")[0]
+                ) *
+                    perc +
+                "px";
+        } else {
+            scanning = false;
+            currentVideo = -1;
+            updateTitles();
+            document.getElementById("scanning").style.display = "none";
+            document.getElementById("controls").style.display = "block";
+        }
+    }
+    makeVideo();
+}
+function onPlayerStateChange(event) {
+    if (event.data == YT.PlayerState.ENDED) {
+        makeVideo();
+    } else if (event.data == YT.PlayerState.PLAYING) {
+        if (scanning) {
+            titles[scanId] = getVideoInfo(0);
+            authors[scanId] = getVideoInfo(1);
+            if (scanId < videoList.length - 1) {
+                scanId++;
+                var perc = scanId / videoList.length;
+                document.getElementById("loadPerc").innerHTML = Math.floor(perc * 100) + "%";
+                document.getElementById("loadBar").style.width =
+                    Number(
+                        window
+                            .getComputedStyle(document.getElementById("loadOutside"), null)
+                            .getPropertyValue("width")
+                            .split("px")[0]
+                    ) *
+                        perc +
+                    "px";
+            } else {
+                scanning = false;
+                currentVideo = -1;
+                updateTitles();
+                document.getElementById("scanning").style.display = "none";
+                document.getElementById("controls").style.display = "block";
+            }
+            makeVideo();
+        } else {
+            if (isNew[videoList[currentVideo]]) {
+                titles[currentVideo] = getVideoInfo(0);
+                authors[currentVideo] = getVideoInfo(1);
+                document.getElementById("titleDisplay").innerHTML = "";
+                updateTitles();
+                highlightCurrent();
+            }
+            var ti = titles[currentVideo];
+            var au = authors[currentVideo];
+            document.getElementById("titles" + currentVideo).innerHTML =
+                `<div class="w3-bar-item"><span class="w3-large">${ti}</span><br><span>${au}</span></div>`;
+        }
+    }
+}
+function updateTitles() {
+    for (var j = 0; j < titles.length; j++) {
+        var ti = titles[j];
+        var au = authors[j];
+        document.getElementById("titleDisplay").innerHTML +=
+            `<li id="titles${j}" onclick="skipTo(${j})" class="rightclick-activate-song individualTitle w3-bar"><div class="w3-bar-item"><span class="w3-large">${ti}</span><br><span>${au}</span></div></li>`;
+    }
+}
+function stopVideo() {
+    player.stopVideo();
+}
+function getVideoInfo(n) {
+    try {
+        var d = player.getVideoData();
+        localData.ytinfo[currentVideoId] = d;
+        updateStorage();
+        var ti;
+        if (n == 0) {
+            return d.title;
+        } else {
+            return d.author;
+        }
+    } catch (err) {
+        return "Video is Unavailable";
+    }
+}
+function onPlayerReady(event) {
+    event.target.playVideo();
+}
+function skipTo(n) {
+    currentVideo = n - 1;
+    makeVideo();
+}
+function highlightCurrent() {
+    var elements = document.getElementsByClassName("individualTitle");
+    for (var i = 0; i < elements.length; i++) {
+        elements[i].style.color = "var(--accent-2)";
+    }
+    var ele = document.getElementById("titles" + currentVideo);
+    ele.style.color = "var(--highlight-color)";
+    ele.scrollIntoView();
+}
