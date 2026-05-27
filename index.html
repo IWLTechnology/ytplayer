@@ -5,10 +5,11 @@ Redo controls
 Add media controls implementation
 Import playlist functions
 Optional API key
-Add counter for playlists e.g. 1/193 etc
 Save current playing list shuffle & progress
 Import multiple by URL, ID
 Default scan data
+Change mode to support empty playlist & start on that
+Refresh layout
 -->
 <!doctype html>
 <html lang="en">
@@ -60,6 +61,7 @@ Default scan data
     <div id="main" style="display: none">
       <h1 class="w3-center">YouTube Player</h1>
       <button class="w3-btn w3-round-xlarge w3-ripple btn1" id="menuButton" onclick="menu(0)">Menu</button>
+      <button class="w3-btn w3-round-xlarge w3-ripple btn1" id="backButton" onclick="back(0)">Back</button>
       <hr />
       <div id="settings" class="w3-center">
         <div id="complexSettings" class="w3-center" style="display: none">
@@ -91,7 +93,7 @@ Default scan data
         <div id="controlsBar" class="w3-center">
           <br />
           <div class="controlsBarItem">
-            <!--<span id="progressCount">Video 1/193</span>-->
+            <span id="progressCount">Video 1/193</span>
           </div>
           <div class="controlsBarItem">
           <button onclick="controls(-1)" class="w3-btn w3-circle w3-ripple btn2 controlsBarButton">⏪</button>

@@ -697,6 +697,7 @@ function makeVideo() {
         player.destroy();
     } catch {}
     currentVideo++;
+    document.getElementById("progressCount").innerHTML = `Video ${currentVideo + 1} / ${videoList.length}`;
     try {
         highlightCurrent();
     } catch {}

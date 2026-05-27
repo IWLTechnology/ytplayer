@@ -134,6 +134,13 @@ hr {
   top: 1.6em;
   right: 1vw;
 }
+#backButton {
+  position: absolute;
+  z-index: 2;
+  top: 1.6em;
+  left: 1vw;
+  display: none;
+}
 #rightclick-menu {
   min-width: 10vw;
   max-width: 20vw;
