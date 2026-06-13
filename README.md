@@ -29,4 +29,4 @@ A hosted version of the project is available on the website (https://iwltechnolo
 - Import / export playlists and the video data library.
 
 ## Version
-2.3.0
+2.3.1
